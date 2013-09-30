@@ -5,7 +5,7 @@
 #include "exponential.h"
 #endif
 
-#include "normal_constants.h"
+#include "normal_layers.h"
 
 #define N(x) (exp(-(x*x/2)))
 

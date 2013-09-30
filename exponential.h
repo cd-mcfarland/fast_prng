@@ -3,7 +3,7 @@
 
 #include "MT19937.h"
 
-#include "exponential_constants.h"
+#include "exponential_layers.h"
 
 void exponential_setup(){
 	mt_init();
@@ -36,7 +36,10 @@ static inline double exponential() {
 	  return EXPONENTIAL_X[i]*(Rand++->d - 1);
 	}
 	Rand++;
-	i = Rand->i[1] >= EXPONENTIAL_ipmf[Rand->s[1]] ? EXPONENTIAL_A[Rand->s[1]] : Rand->s[1]; 
+	i = Rand->s[7];
+	if (Rand->i[0] > EXPONENTIAL_impf[i]) i = EXPONENTIAL_A[i];
+
+//	i = Rand->i[1] >= EXPONENTIAL_ipmf[Rand->s[1]] ? EXPONENTIAL_A[Rand->s[1]] : Rand->s[1]; 
 	// The last 8 bits of 64-bit random integer are beyond the resolution of a double precision float
 	Rand++;
 	return i > 0 ? exponential_overhang(i) : EXPONENTIAL_X[0] + exponential();
