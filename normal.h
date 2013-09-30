@@ -34,8 +34,12 @@ static inline double normal() {
 	uint8_t i = Rand->s[0]; 
 	if (i < NORM_BINS) { 
 	  Rand->l = (Rand->l >> 2) | EXP_SET;
-	  return norm_2X[i]*(Rand++->d - 1.5); }	// Contingent upon Left to Right Associativity; I don't know if its good practice to write this in 1 line.
-	i = Rand->i[1] >= norm_ipmf[Rand->s[1]] ? norm_A[Rand->s[1]] : Rand->s[1]; // The last 8 bits of 64-bit random integer are beyond the resolution of a double precision float
+	  return norm_2X[i]*(Rand++->d - 1.5); 
+	}	
+/* Contingent upon Left to Right Associativity; I don't know if its good practice to write this in 1 line.*/
+
+	i = Rand->i[1] >= norm_ipmf[Rand->s[1]] ? norm_A[Rand->s[1]] : Rand->s[1]; 
+/* The last 8 bits of 64-bit random integer are beyond the resolution of a double precision float */
     if (i == 0) return (Rand++->s[2] > 127 ? 1 : -1)*norm_tail();
 	return Rand++->s[2] > 127 ? norm_overhang(i) : -norm_overhang(i);
 }
