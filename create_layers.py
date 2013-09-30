@@ -109,7 +109,7 @@ for V_i, newV_i in zip(V, newV):
 ipmf = uint32(pmf*longdouble(2**32))
 ipmf[pmf >= 1] = -1
 
-output = open(TYPE.lower() + "_constants.h", 'w')
+output = open(TYPE.lower() + "_layers.h", 'w')
 
 
 output.write("""#define\t{TYPE}_BINS\t{bins}
