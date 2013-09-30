@@ -3,7 +3,7 @@
 
 #include "MT19937.h"
 
-#include "exponential_constants.h"
+#include "exponential_layers.h"
 
 void exponential_setup(){
 	mt_init();
