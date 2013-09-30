@@ -1,0 +1,13 @@
+syntax: glob
+
+*.png
+*.out
+*.dat
+*.pdf
+*.svg
+*.so
+*.html
+*.pyc
+*~
+__pycache__/*
+
