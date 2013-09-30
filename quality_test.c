@@ -8,7 +8,7 @@
  *
  * */
 
-#define TRIALS 			1000000000
+#define TRIALS 			10000000000
 #define NUM_RAW_MOMENTS	5
 #include <inttypes.h>
 #include <stdio.h>
