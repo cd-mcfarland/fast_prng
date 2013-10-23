@@ -1,9 +1,12 @@
+#ifndef __cdm_z_exp__
+#define __cdm_z_exp__
 #include <stdlib.h>
 #include <math.h>
 
 #include "MT19937.h"
 
 #include "exponential_layers.h"
+#define EXPONENTIAL_MINIMAL_TEST	0.092587156309399996
 
 void exponential_setup(){
 	mt_init();
@@ -12,20 +15,16 @@ void exponential_setup(){
 static inline double exponential_overhang(uint8_t i) {
   double x, y;
   dw128_t W = wide_uniform();
-/*  if (W.d[0] < W.d[1]) { 
-    x = W.d[0]; 
-    y = 1 - W.d[1]; 
+  if (W.d[0] > W.d[1]) { 
+    y = W.d[0];
+    W.d[0] = W.d[1];
   }
-  else { 
-    x = W.d[1]; 
-    y = 1 - W.d[0]; 
+  else {
+    y = W.d[1];
   }
-  if (x < y - EXPONENTIAL_E[i]) return EXPONENTIAL_X[i] + EXPONENTIAL_dX[i]*x;
-*/
-  x = W.d[0];
-  y = W.d[1];
-  x = EXPONENTIAL_X[i] + EXPONENTIAL_dX[i]*x;
-  return EXPONENTIAL_Y[i] + EXPONENTIAL_dY[i]*y <= exp(-x) ? x : exponential_overhang(i);
+  x = EXPONENTIAL_X[i] + EXPONENTIAL_dX[i]*W.d[0];
+  if ((y - W.d[0] <= EXPONENTIAL_MINIMAL_TEST) && (EXPONENTIAL_Y[i] + EXPONENTIAL_dY[i]*(1 - y) > exp(-x) )) return exponential_overhang(i);
+  return x;
 }
 
 static inline double exponential() {
@@ -37,11 +36,14 @@ static inline double exponential() {
 	}
 	Rand++;
 	i = Rand->s[7];
-	if (Rand->i[0] > EXPONENTIAL_impf[i]) i = EXPONENTIAL_A[i];
+	MT_FLUSH();
+	if (Rand->i[0] > EXPONENTIAL_ipmf[i]) i = EXPONENTIAL_A[i];
 
 //	i = Rand->i[1] >= EXPONENTIAL_ipmf[Rand->s[1]] ? EXPONENTIAL_A[Rand->s[1]] : Rand->s[1]; 
 	// The last 8 bits of 64-bit random integer are beyond the resolution of a double precision float
 	Rand++;
-	return i > 0 ? exponential_overhang(i) : EXPONENTIAL_X[0] + exponential();
+	return i == 0 ? EXPONENTIAL_X[0] + exponential() : exponential_overhang(i);
+//	return i == 0 ? EXPONENTIAL_X[0] - log(uniform_double()) : exponential_overhang(i);
 }
+#endif
 

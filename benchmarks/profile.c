@@ -8,10 +8,10 @@
  *
  * */
 
-#define TRIALS 			pow(10, 12)
-#define NUM_RAW_MOMENTS	5
-#include <inttypes.h>
+#include <math.h>
+#define TRIALS 			pow(10, 9)
 #include <stdio.h>
+#include "MT19937.h"
 
 #ifdef EXPONENTIAL
 #include "exponential.h"
@@ -31,25 +31,28 @@
 #define GENERATOR()		poisson()
 #define NAME			"Poisson"
 #endif
+#ifdef DOORNIK
+#include "doornik.h"
+#define NAME			"Doornik Standard Normal"
+#define SETUP			mt_init(); zigNorInit(ZIGNOR_C, ZIGNOR_R, ZIGNOR_V);
+#define GENERATOR()		DRanNormalZig()
+#endif
+#ifdef MARSAGLIA
+#include "marsaglia_tsang_exponential.h"
+#define NAME "Marsaglia & Tsang (2000) exponential"
+static int ke[256];
+static float fe[256], we[256];
+#define SETUP			mt_init(); r4_exp_setup(ke, fe, we)
+static unsigned long int *jsr_unused;
+#define GENERATOR()		r4_exp(jsr_unused, ke, fe, we)
+#endif
 
 void main(int argc, char *argv[]){
 	SETUP;
-	uint64_t i, j;
-	double val, X[NUM_RAW_MOMENTS], x_j;
-	for (i=0; i<NUM_RAW_MOMENTS; i++) {
-		X[i] = 0;
-	}
-
-	for (i=0; i<TRIALS; i++) {
-		val = (double)GENERATOR();
-		for (j=0, x_j=val; j<NUM_RAW_MOMENTS; j++, x_j*=val) {
-			X[j] += x_j;
-		}
-	}
+	double x = 0;
+	int i;
+	for (i=0; i<TRIALS; i++) x += (double)GENERATOR();
 
 	//Output
-	printf("Created %ld %s distributed pseudo-random numbers...\n", (long)TRIALS, NAME);
-	for (i=0; i<NUM_RAW_MOMENTS; i++) {
-			printf("X%lu: %f\n", i+1, X[i]/TRIALS);	
-	}
+	printf("Created %ld %s distributed pseudo-random numbers with mean %g \n", (long)TRIALS, NAME, x/TRIALS);
 }

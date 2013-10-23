@@ -294,6 +294,8 @@ static void period_certification(void);
 void mt_init();
 static inline dw128_t wide_uniform();
 
+static inline double uniform_double();
+static inline unsigned long rand_long(unsigned long n);
 #if defined(__SSE2__)
 /** 
  * @file  SFMT-sse2.h
@@ -558,5 +560,20 @@ static inline dw128_t wide_uniform() {
   W.sd = _mm_add_pd(W.sd, sse2_double_m_one);
   return W;
 }
+
+static inline double uniform_double() {
+  MT_FLUSH();
+  Rand->l = (Rand->l >> 2) | EXP_SET;
+  return Rand++->d - 1;
+}
+
+static inline unsigned long rand_long(unsigned long n){
+  MT_FLUSH();
+ return Rand++->l % n;
+}
+
 #endif
+
+
+
 

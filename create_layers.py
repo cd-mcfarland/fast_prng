@@ -18,13 +18,14 @@ def fsolve(f, x0, fprime, xtol=1e-18):
 		x1 = x0 - f(x0)/fprime(x0)
 		if abs(x1-x0) < xtol: 
 			return x1
-		else: x0 = x1
+		else: 
+			x0 = x1
 	else:					# Newton's method failed to converge, now try Secant Method
-		x = [x0,x0 - f(x0)/fprime(x0)]
+		x = [x0, x0 - f(x0)/fprime(x0)]
 		F = [f(x[0]), f(x[1])]
-		for n in range(2,100):
+		for n in range(2, 100):
 			x.append(x[n-1] - F[n-1]*(x[n-1] - x[n-2])/(F[n-1] - F[n-2]))
-			if abs(x[n]-x[n-1]) < xtol: 
+			if abs(x[n] - x[n-1]) < xtol: 
 				return x[n]
 			F.append(f(x[n]))
 		else: 
@@ -109,8 +110,20 @@ for V_i, newV_i in zip(V, newV):
 ipmf = uint32(pmf*longdouble(2**32))
 ipmf[pmf >= 1] = -1
 
-output = open(TYPE.lower() + "_layers.h", 'w')
+#if TYPE == 'EXPONENTIAL':
+#	m = -dY/dX
+#	for i, m_i in enumerate(-m):
+#		assert m_i > Y[i],   'tangent line must be steeper than initial derivative'
+#		assert m_i < Y[i+1], 'tangent line must be shallower than final derivative'
+#	E = (Y[1:]+m*(1-X-log(-m,dtype=longdouble)))/dY
 
+Y = Y[:-1]
+
+check_equal(f(X[1:])/size, (Y+dY)[1:])
+check_equal(Y[1:]*size, f(X+dX)[1:])
+
+######### OUTPUT
+output = open(TYPE.lower() + "_layers.h", 'w')
 
 output.write("""#define\t{TYPE}_BINS\t{bins}
 #define\t{TYPE}_SIZE\t{size}
@@ -120,18 +133,7 @@ def writeDoubleArray(Str):
 	assert len(eval(Str)) == bins + 1, 'improper array for this output' 
 	output.write('static double {TYPE}_{Str}[{TYPE}_BINS+1] = {{ '.format(Str=Str, **globals()) + ', '.join(map(str, eval(Str))) + '};\n\n' )
 
-if TYPE == 'EXPONENTIAL':
-	m = -dY/dX
-	for i, (ym_i, y_i, y_ip1) in enumerate(zip(-m, Y[:-1], Y[1:])):
-		assert ym_i > y_i and ym_i < y_ip1, 'i: {:} ym_i: {:} y_i: {:} y_i+1: {:}'.format(i, ym_i, y_i, y_ip1)
-	E = (Y[1:]+m*(1-X-log(-m,dtype=longdouble)))/dY
-	E1 = 1 - E
-	writeDoubleArray('E')
-	writeDoubleArray('E1')
-
-Y = Y[:-1]
-
-for double_array in ['X', 'Y', 'dX', 'dY']:
+for double_array in ['X', 'Y', 'dX', 'dY']: # + ['E'] if TYPE=='EXPONENTIAL' else []:
 	writeDoubleArray(double_array)
 
 output.write(
@@ -140,9 +142,4 @@ output.write(
 static {:}_t {TYPE}_ipmf[{TYPE}_SIZE] = {{ {:}u }};
 """.format(', '.join(map(str, A)), str(ipmf.dtype), 'u, '.join(map(str, ipmf)), **locals()))
 output.close()
-for i, x_i, dx_i, y_i, dy_i in zip(range(len(X)), X, dX, Y, dY):
-	if i==0: 
-		continue
-	check_equal(f(x_i)/size, y_i + dy_i)
-	check_equal(y_i, f(x_i + dx_i)/256)
 
