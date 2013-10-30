@@ -60,6 +60,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     plhs[0] = mxCreateNumericArray(n_dims, dims, mxDOUBLE_CLASS, mxREAL);
     double *element = mxGetPr(plhs[0]);
     double *end = element + mxGetNumberOfElements(plhs[0]);
+/*    for (element=mxGetPr(plhs[0]), element < ) */
     while (element < end) {
         *element = normal();
         element++;
