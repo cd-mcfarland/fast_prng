@@ -11,28 +11,28 @@
 #include <math.h>
 #define TRIALS 			pow(10, 9)
 #include <stdio.h>
-#include "MT19937.h"
+#include "../MT19937.h"
 
 #ifdef EXPONENTIAL
-#include "exponential.h"
+#include "../exponential.h"
 #define SETUP			exponential_setup()
 #define GENERATOR()		exponential()
 #define NAME			"exponential"
 #endif
 #ifdef NORMAL
-#include "normal.h"
+#include "../normal.h"
 #define SETUP			normal_setup()
 #define GENERATOR()		normal()
 #define NAME			"standard normal"
 #endif
 #ifdef POISSON
-#include "poisson.h"
+#include "../poisson.h"
 #define SETUP			poisson_setup(1)
 #define GENERATOR()		poisson()
 #define NAME			"Poisson"
 #endif
 #ifdef DOORNIK
-#include "doornik.h"
+#include "doornik_normal.h"
 #define NAME			"Doornik Standard Normal"
 #define SETUP			mt_init(); zigNorInit(ZIGNOR_C, ZIGNOR_R, ZIGNOR_V);
 #define GENERATOR()		DRanNormalZig()
