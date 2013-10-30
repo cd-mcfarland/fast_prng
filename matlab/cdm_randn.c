@@ -42,17 +42,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         return;
     }
 
-    int64_t i, n_dims = nrhs == 1 ? mxGetNumberOfElements(prhs[0]) : nrhs;
+    int64_t i, n_dims; 
     mwSize dims[n_dims];
     double *dims_p;
 
     if (nrhs == 1) {
-        dims_p = mxGetPr(prhs[1]);
+	n_dims = mxGetNumberOfElements(prhs[0]);
+        dims_p = mxGetPr(prhs[0]);
         for (i=0; i<n_dims; i++) {
             dims[i] = (int64_t)(*dims_p++);
         }
     }
     else {
+	n_dims = nrhs;
         for (i=0; i<n_dims; i++) {
             dims[i] = (int64_t)(mxGetScalar(prhs[i+1]));
         }

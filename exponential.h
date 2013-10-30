@@ -34,16 +34,11 @@ static inline double exponential() {
 	  Rand->l = (Rand->l >> 2) | EXP_SET;
 	  return EXPONENTIAL_X[i]*(Rand++->d - 1);
 	}
-	Rand++;
-	i = Rand->s[7];
-	MT_FLUSH();
-	if (Rand->i[0] > EXPONENTIAL_ipmf[i]) i = EXPONENTIAL_A[i];
 
-//	i = Rand->i[1] >= EXPONENTIAL_ipmf[Rand->s[1]] ? EXPONENTIAL_A[Rand->s[1]] : Rand->s[1]; 
-	// The last 8 bits of 64-bit random integer are beyond the resolution of a double precision float
+	i = Rand->i[1] >= EXPONENTIAL_ipmf[Rand->s[1]] ? EXPONENTIAL_A[Rand->s[1]] : Rand->s[1]; 
+	/* The last 8 bits of 64-bit random integer are beyond the resolution of a double precision float */
 	Rand++;
 	return i == 0 ? EXPONENTIAL_X[0] + exponential() : exponential_overhang(i);
-//	return i == 0 ? EXPONENTIAL_X[0] - log(uniform_double()) : exponential_overhang(i);
 }
 #endif
 
