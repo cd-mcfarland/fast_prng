@@ -19,7 +19,7 @@
 #include <inttypes.h>
 #include "mex.h"
 #include "matrix.h"
-#include "exponential.h"
+#include "../exponential.h"
 
 #define ASSERT(a, b, c) { if (!(a)) mexErrMsgIdAndTxt(b, c); }
 

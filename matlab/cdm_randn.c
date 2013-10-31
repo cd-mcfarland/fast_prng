@@ -29,14 +29,14 @@
 #include <inttypes.h>
 #include "mex.h"
 #include "matrix.h"
-#include "normal.h"
+#include "../normal.h"
 
 #define ASSERT(a, b, c) { if (!(a)) mexErrMsgIdAndTxt(b, c); }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
  /*   ASSERT(nlhs == 1, "cdm_randn:maxlhs", "Too many output arguments.");
 */   
-	normal_setup();
+    normal_setup();
     if (nrhs == 0) {
         plhs[0] = mxCreateDoubleScalar(normal());
         return;
@@ -47,25 +47,23 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     double *dims_p;
 
     if (nrhs == 1) {
-	n_dims = mxGetNumberOfElements(prhs[0]);
+        n_dims = mxGetNumberOfElements(prhs[0]);
         dims_p = mxGetPr(prhs[0]);
         for (i=0; i<n_dims; i++) {
             dims[i] = (int64_t)(*dims_p++);
         }
     }
     else {
-	n_dims = nrhs;
+        n_dims = nrhs;
         for (i=0; i<n_dims; i++) {
-            dims[i] = (int64_t)(mxGetScalar(prhs[i+1]));
+            dims[i] = (int64_t)(mxGetScalar(prhs[i]));
         }
     }
     plhs[0] = mxCreateNumericArray(n_dims, dims, mxDOUBLE_CLASS, mxREAL);
     double *element = mxGetPr(plhs[0]);
     double *end = element + mxGetNumberOfElements(plhs[0]);
-/*    for (element=mxGetPr(plhs[0]), element < ) */
-    while (element < end) {
+    for (; element < end; element++) {
         *element = normal();
-        element++;
     }
 }
 
