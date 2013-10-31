@@ -22,8 +22,8 @@ static inline double exponential_overhang(uint8_t i) {
   else {
     y = W.d[1];
   }
-  x = EXPONENTIAL_X[i] + EXPONENTIAL_dX[i]*W.d[0];
-  if ((y - W.d[0] <= EXPONENTIAL_MINIMAL_TEST) && (EXPONENTIAL_Y[i] + EXPONENTIAL_dY[i]*(1 - y) > exp(-x) )) return exponential_overhang(i);
+  x = EXPONENTIAL_X[i] + (EXPONENTIAL_X[i-1] - EXPONENTIAL_X[i])*W.d[0];
+  if ((y - W.d[0] <= EXPONENTIAL_MINIMAL_TEST) && (EXPONENTIAL_Y[i] + (EXPONENTIAL_Y[i-1] - EXPONENTIAL_Y[i])*(1 - y) > exp(-x) )) return exponential_overhang(i);
   return x;
 }
 

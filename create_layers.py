@@ -133,7 +133,7 @@ def writeDoubleArray(Str):
 	assert len(eval(Str)) == bins + 1, 'improper array for this output' 
 	output.write('static double {TYPE}_{Str}[{TYPE}_BINS+1] = {{ '.format(Str=Str, **globals()) + ', '.join(map(str, eval(Str))) + '};\n\n' )
 
-for double_array in ['X', 'Y', 'dX', 'dY']: # + ['E'] if TYPE=='EXPONENTIAL' else []:
+for double_array in ['X', 'Y']:
 	writeDoubleArray(double_array)
 
 output.write(

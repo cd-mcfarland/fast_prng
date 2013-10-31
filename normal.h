@@ -17,7 +17,7 @@ static inline double norm_overhang(uint8_t i) {
   Rand	 += 2;
   W.si = _mm_or_si128(_mm_srli_epi64(W.si, 2), sse2_int_set); 
   W.sd = _mm_add_pd(W.sd, sse2_double_m_one);
-  double x = norm_X[i] + norm_dX[i]*W.d[0], y = norm_Y[i] + norm_dY[i]*W.d[1];
+  double x = norm_X[i] + (norm_X[i-1] - norm_X[i])*W.d[0], y = norm_Y[i] + (norm_Y[i-1] -norm_Y[i])*W.d[1];
   return y < N(x) ? x : norm_overhang(i);
 }
 
