@@ -122,8 +122,12 @@ Y = Y[:-1]
 check_equal(f(X[1:])/size, (Y+dY)[1:])
 check_equal(Y[1:]*size, f(X+dX)[1:])
 
+print(X[0])
+X *= pow(longdouble(2), -longdouble(56))
+Y *= pow(longdouble(2), -longdouble(64))
 ######### OUTPUT
 output = open(TYPE.lower() + "_layers.h", 'w')
+
 
 output.write("""#define\t{TYPE}_BINS\t{bins}
 #define\t{TYPE}_SIZE\t{size}

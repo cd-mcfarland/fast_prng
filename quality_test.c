@@ -8,7 +8,7 @@
  *
  * */
 
-#define TRIALS 			pow(10, 12)
+#define TRIALS 			pow(10, 10)
 #define NUM_RAW_MOMENTS	5
 #include <inttypes.h>
 #include <stdio.h>

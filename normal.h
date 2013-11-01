@@ -11,14 +11,14 @@ void normal_setup() {
 }
 
 static inline double norm_overhang(uint8_t i) {
-  MT_FLUSH();
-  dw128_t W;
-  W.si = _mm_set_epi64x(Rand[0].l, Rand[1].l);	
-  Rand	 += 2;
-  W.si = _mm_or_si128(_mm_srli_epi64(W.si, 2), sse2_int_set); 
-  W.sd = _mm_add_pd(W.sd, sse2_double_m_one);
-  double x = norm_X[i] + (norm_X[i-1] - norm_X[i])*W.d[0], y = norm_Y[i] + (norm_Y[i-1] -norm_Y[i])*W.d[1];
-  return y < N(x) ? x : norm_overhang(i);
+	MT_FLUSH();
+	dw128_t W;
+	W.si = _mm_set_epi64x(Rand[0].l, Rand[1].l);	
+	Rand += 2;
+	W.si = _mm_or_si128(_mm_srli_epi64(W.si, 2), sse2_int_set); 
+	W.sd = _mm_add_pd(W.sd, sse2_double_m_one);
+	double x = norm_X[i] + (norm_X[i-1] - norm_X[i])*W.d[0], y = norm_Y[i] + (norm_Y[i-1] -norm_Y[i])*W.d[1];
+	return y < N(x) ? x : norm_overhang(i);
 }
 
 static inline double norm_tail() {
