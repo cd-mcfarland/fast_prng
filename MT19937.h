@@ -10,8 +10,8 @@
 #define F(x) { printf("%s: %g\n",#x,x); }
 
 
-/* cycle defines the size of random number arrays in bytes*16!  It should be larger than 382--SEG-FAULT if not (no assertions)!! */
-#define cycle		500	
+/* __cycle__ defines the size of random number arrays in bytes*16!  It should be larger than 382--SEG-FAULT if not (no assertions)!! */
+#define __cycle__		500	
 
 
 /* ORIGINAL */
@@ -259,6 +259,7 @@ typedef union RAND64_t {
 	uint32_t i[2];
 	double d;
 	uint64_t l;
+	int64_t sl;
 } rand64_t;
 
 typedef union dW128_T {
@@ -467,22 +468,21 @@ static void period_certification(void) {
  * @param init_key the array of 32-bit integers, used as a seed.
  * @param key_length the length of init_key.
  */
-#define EXP_SET		0x3ff0000000000000
-#define SIGN_SET	0x3fffffffffffffff
+#define __EXP_SET__		0x3ff0000000000000
 
-static w128_t iRandS[cycle], *iRend = &iRandS[cycle-1]; 
+static w128_t iRandS[__cycle__], *iRend = &iRandS[__cycle__-1]; 
 rand64_t *Rand;
 
 static __m128d sse2_double_m_one;
 static __m128i sse2_int_set;
 
-void mt_init() { 
+void mt_init() {				// Returns a void pointer so that it can be assigned to a static variable, see MT_FLUSH() 
     static int old = 0;
     if (old==1) return;
     old = 1;
     uint32_t init_key[] = {(int)getpid(), (int)time(NULL), (int)getppid()}, key_length = 3;
     sse2_double_m_one = _mm_set_pd(-1.0, -1.0);
-    sse2_int_set = _mm_set_epi64((__m64)EXP_SET, (__m64)EXP_SET);
+    sse2_int_set = _mm_set_epi64((__m64)__EXP_SET__, (__m64)__EXP_SET__);
     
     int i, j, count;
     uint32_t r;
@@ -545,11 +545,12 @@ void mt_init() {
 
     idx = N32;
     period_certification();
-	gen_rand_array(iRandS,cycle); 
+	gen_rand_array(iRandS,__cycle__); 
 	Rand = (rand64_t *)iRandS;
 }
 
-#define MT_FLUSH() { if (Rand > (rand64_t *)iRend) { gen_rand_array(iRandS,cycle); Rand = (rand64_t *) iRandS; }; } 
+#define MT_FLUSH() { if (Rand > (rand64_t *)iRend) { gen_rand_array(iRandS,__cycle__); Rand = (rand64_t *) iRandS; }; } 
+
 
 static inline dw128_t wide_uniform() {
   MT_FLUSH();
@@ -563,7 +564,7 @@ static inline dw128_t wide_uniform() {
 
 static inline double uniform_double() {
   MT_FLUSH();
-  Rand->l = (Rand->l >> 2) | EXP_SET;
+  Rand->l = (Rand->l >> 2) | __EXP_SET__;
   return Rand++->d - 1;
 }
 

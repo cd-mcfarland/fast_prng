@@ -1,40 +1,34 @@
 #!/usr/bin/python3.2
-from numpy import *
+import numpy as np
 from numpy import abs
-eps = finfo(double).eps
+
+eps = np.finfo(np.double).eps
 size = 256
 
 TYPE = 'EXPONENTIAL' 
 #TYPE = 'NORMAL'
 
-def check_equal(x,y): assert (abs(x - y,dtype=longdouble) < eps).all(), "{:}  {:}".format(x,y)
+def check_equal(x,y): assert (np.abs(x - y,dtype=np.longdouble) < eps).all(), "{:}  {:}".format(x,y)
 
-def fsolve(f, x0, fprime, xtol=1e-18):
+def fsolve(f, a, b, xtol=1e-18):
 	""" fsolve(f, fprime, x0, xtol=1e-18) -> x: f(x) = 0; implemented to longdouble precision
 		
-	Uses Newton's Method, then Secant Method if convergence fails. fprime and x0 (initial guess) are necessary; there are no safeguards with this implementation.
+	Uses Secant Method, requires a <= x < b there are no safeguards with this implementation.
 """
-	for n in range(100):	# first, try Newton's Method
-		x1 = x0 - f(x0)/fprime(x0)
-		if abs(x1-x0) < xtol: 
-			return x1
-		else: 
-			x0 = x1
-	else:					# Newton's method failed to converge, now try Secant Method
-		x = [x0, x0 - f(x0)/fprime(x0)]
-		F = [f(x[0]), f(x[1])]
-		for n in range(2, 100):
-			x.append(x[n-1] - F[n-1]*(x[n-1] - x[n-2])/(F[n-1] - F[n-2]))
-			if abs(x[n] - x[n-1]) < xtol: 
-				return x[n]
-			F.append(f(x[n]))
-		else: 
-			return 0
+	assert a < b, "a must be lower bound, b must be higher bound"
+	x = [b, a]
+	F = list(map(f, x))
+	for n in range(2, 100):
+		x.append(x[n-1] - F[n-1]*(x[n-1] - x[n-2])/(F[n-1] - F[n-2]))
+		if abs(x[n] - x[n-1]) < xtol: 
+			return x[n]
+		F.append(f(x[n]))
+	return 0
 
 def realign(pmf):
 	"""realign(pmf) -> X, A: X & A allow random sampling from pmf in O(1) time.
 		
-		pmf: defines any arbitrary probability mass function on the domain [0, len(pmf)).
+		pmf: defines any arbitrary probability mass function on the domain [0, len(pmf)); needn't be normalized.
 	
 	A discrete random variable r, defined by pmf, is drawn from X, A as follows:
 		r = numpy.random.randint(len(pmf))
@@ -43,107 +37,131 @@ def realign(pmf):
 	
 	See	http://scorevoting.net/WarrenSmithPages/homepage/sampling.abs for a description of this method. This is an implementation of the method to longdouble precision.
 """
+	pmf = np.copy(pmf)
+	pmf /= pmf.mean()
 	L = len(pmf)
-	A, B, X = arange(L), arange(L+1), r_[pmf,longdouble(2)]		 # X[L] = sentinel.
+	A = np.arange(L)
+	B = np.arange(L+1)
+	X = np.r_[pmf, np.longdouble(2)]		 # X[L] = sentinel.
 	i, j = 0, L
 	while True:
-		while X[B[i]]< 1:					   #In ascending order, find x_(b_i) > 1.
+		while X[B[i]]< 1:				# In ascending order, find x_(b_i) > 1.
 			i += 1
-		while X[B[j]] >= 1:			 #In descending order, find x_(b_j) < 1.
+		while X[B[j]] >= 1:			 	# In descending order, find x_(b_j) < 1.
 			j -= 1
-		if i >= j:									  #If ascent passes descent, end
+		if i >= j:						# If ascent passes descent, end
 			break
-		B[i], B[j] = B[j], B[i]		 # Swap b_i, b_j
+		B[i], B[j] = B[j], B[i]			# Swap b_i, b_j
 	i = j
 	j += 1
-		# At this point, X[B][:j] is < 1 and X[B][j:] is > 1 
-		# Also, X[B[i]] is < 1. 
+										# At this point, X[B][:j] is < 1 and X[B][j:] is > 1 
+										# Also, X[B[i]] is < 1. 
 	while i>=0:
-		while X[B[j]] <= 1:			 # Find x_(b_j) that needs probability mass
+		while X[B[j]] <= 1:				# Find x_(b_j) that needs probability mass
 			j += 1
-		if j > L-1:									 # Nobody needs probability mass, Done
-			break								   
-		X[B[j]] -= 1 - X[B[i]]		  # Send all of x_(b_i) excess probability mass to x_(b_j)				(x_(b_i) is now done).
+		if j > L-1:						# Nobody needs probability mass, Done
+			break						   
+		X[B[j]] -= 1 - X[B[i]]			# Send all of x_(b_i) excess probability mass to x_(b_j)				(x_(b_i) is now done).
 		A[B[i]] = B[j]
-		if X[B[j]] < 1:				 # If x_(b_j) now has too much probability mass, 
-			B[i], B[j] = B[j], B[i] # Swap, b_i, b_j, it becomes a donor.
+		if X[B[j]] < 1:					# If x_(b_j) now has too much probability mass, 
+			B[i], B[j] = B[j], B[i]		# Swap, b_i, b_j, it becomes a donor.
 			j += 1
-		else:										   # Otherwise, leave it as an acceptor
+		else:							# Otherwise, leave it as an acceptor
 			i -= 1
+
+	new_pmf = np.copy(X[:-1])
+	for a_i, pmf_i in zip(A, X[:-1]):
+		new_pmf[a_i] += 1 - pmf_i	
+	check_equal(new_pmf, pmf)
 	return X[:-1], A
 
+# redefine Transcendental functions for proper precision
+exp = lambda x: np.exp(x, dtype=np.longdouble)
+sqrt = lambda x: np.sqrt(x, dtype=np.longdouble)
+power = lambda x, y: np.power(x, y, dtype=np.longdouble)
+from erfl import erf
+
+oneHalf = 1/np.longdouble(2)
+
 if TYPE == 'EXPONENTIAL':
-	f = lambda x: size*exp(-x,dtype=longdouble)
+	volume = 1/np.longdouble(size)
+	f = lambda x: exp(-x)
+	CDF = lambda x: 1 - f(x)
 elif TYPE == 'NORMAL':
-	heigth = exp(1/longdouble(2), dtype=longdouble)/sqrt(2*pi,dtype=longdouble)
-	f = lambda x: size*heigth*exp(-x*x,dtype=longdouble)
+	f = lambda x: exp(-x*x*oneHalf)				# This function is more efficient to calculate than the normalized Gaussian Distribution
+	volume = sqrt(2*np.pi)/np.longdouble(2*size)
+	CDF = np.vectorize( lambda x: sqrt(np.pi/2)*erf(x/sqrt(2)) )
 
-X = []
-Y = [0]
+X = [fsolve(lambda x: x*f(x) - volume, 1, 10 if TYPE == 'EXPONENTIAL' else 4)]
+Y = [f(X[0])]
 
-for i in range(size):
-	X.append(fsolve(lambda x_i: x_i*(f(x_i) - Y[i]) - 1, X[i-1] if i!=0 else 10, fprime=lambda x_i: f(x_i)*(1-x_i) - Y[i]))
-	Y.append(f(X[i]))
-	if X[i] == 0:
-		break
-	check_equal(X[i]*(Y[i+1] - Y[i]), 1)
-X = array(X)
+while X[-1] != 0:
+	X.append(fsolve(lambda x: x*(f(x) - Y[-1]) - volume, X[-1]/2, X[-1]))
+	Y.append(f(X[-1]))
+
+X = np.array(X)
+dX = -np.diff(X)							# dx_i = x_i-1 - x_i; x_-1 = x: f(x) = 0 = inf
+Y = np.array(Y)
+dY = np.diff(Y)
+check_equal(X[1:-1]*dY[:-1], volume)
+
+V = -np.diff(CDF(np.r_[np.inf, X]))
+V[1:] -= Y[:-1]*dX
+V = np.r_[V, np.zeros(size - len(X-1))]
+
 bins = len(X) - 1
-Y = array(Y)
 
-dX = r_[longdouble(999), X[:-1] - X[1:]]								# dx_i = x_i-1 - x_i; x_-1 = x: f(x) = 0 = inf
-V = r_[Y[1:] - Y[:-1]*(1+dX), zeros(size - len(X), dtype=longdouble)]	# len(V) must equal size
+check_equal(size - bins, V.sum()/volume) 
 
-check_equal(size, V.sum() + bins)
-Y /= size										  	# normalize back to 1.
-V *= size/V.sum()								  	# normalize to size.
-dY = Y[1:] - Y[:-1]									# dy_i = y_i+1 - y_i
+V /= V.mean()
 
-pmf, A = realign(V)
-newV = copy(pmf)
-for A_i, pmf_i in zip(A, pmf):
-	newV[A_i] += 1-pmf_i
-for V_i, newV_i in zip(V, newV):
-	check_equal(V_i, newV_i) 
+pmf, Map = realign(V)
 
+remaining_int_size = power(2, 56)
+max_uint64 = power(2, 64)
 
-ipmf = uint32(pmf*longdouble(2**32))
+ipmf = np.uint64(pmf*remaining_int_size)
 ipmf[pmf >= 1] = -1
 
-#if TYPE == 'EXPONENTIAL':
-#	m = -dY/dX
-#	for i, m_i in enumerate(-m):
-#		assert m_i > Y[i],   'tangent line must be steeper than initial derivative'
-#		assert m_i < Y[i+1], 'tangent line must be shallower than final derivative'
-#	E = (Y[1:]+m*(1-X-log(-m,dtype=longdouble)))/dY
 
-Y = Y[:-1]
+if TYPE == 'EXPONENTIAL':
+	m = dY/dX
+	assert (m > Y[:-1]).all(),	'tangent line must be steeper than initial derivative'
+	assert (m < Y[1: ]).all(),  'tangent line must be shallower than final derivative'
+	E = (Y[1:]-m*(1-X[1:]-np.log(m)))/dY
+	print('__EXP_MINIMAL_TEST__', np.uint64(E.max()*max_uint64))
+	X /= remaining_int_size
+	Y /= max_uint64
+elif TYPE == 'NORMAL':
+	print('__NORM_TAIL_BEGIN__', X[0]) 
+	X *= power(2, -63)
+	Y *= power(2, -64)
 
-check_equal(f(X[1:])/size, (Y+dY)[1:])
-check_equal(Y[1:]*size, f(X+dX)[1:])
-
-print(X[0])
-X *= pow(longdouble(2), -longdouble(56))
-Y *= pow(longdouble(2), -longdouble(64))
 ######### OUTPUT
 output = open(TYPE.lower() + "_layers.h", 'w')
 
+short_type = 'exp' if TYPE == 'EXPONENTIAL' else 'norm' 
 
-output.write("""#define\t{TYPE}_BINS\t{bins}
-#define\t{TYPE}_SIZE\t{size}
+BINS = "__{:}_BINS__".format(short_type.upper())
+SIZE = "__{:}_SIZE__".format(short_type.upper())
+
+
+output.write("""#define\t{BINS}\t{bins}
+#define\t{SIZE}\t{size}
 """.format(**locals()))
+
 
 def writeDoubleArray(Str):
 	assert len(eval(Str)) == bins + 1, 'improper array for this output' 
-	output.write('static double {TYPE}_{Str}[{TYPE}_BINS+1] = {{ '.format(Str=Str, **globals()) + ', '.join(map(str, eval(Str))) + '};\n\n' )
+	output.write('static double __{short_type}_{Str}__[{BINS}+1] = {{ '.format(Str=Str, **globals()) + ', '.join(map(str, eval(Str))) + '};\n\n' )
 
 for double_array in ['X', 'Y']:
 	writeDoubleArray(double_array)
 
 output.write(
-"""static uint8_t {TYPE}_A[{TYPE}_SIZE] = {{ {:} }};
+"""static uint8_t __{short_type}_map__[{SIZE}] = {{ {:} }};
 
-static {:}_t {TYPE}_ipmf[{TYPE}_SIZE] = {{ {:}u }};
-""".format(', '.join(map(str, A)), str(ipmf.dtype), 'u, '.join(map(str, ipmf)), **locals()))
+static {:}_t __{short_type}_ipmf__[{SIZE}] = {{ {:}u }};
+""".format(', '.join(map(str, Map)), str(ipmf.dtype), 'u, '.join(map(str, ipmf)), **locals()))
 output.close()
 

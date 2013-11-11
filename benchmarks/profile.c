@@ -8,10 +8,10 @@
  *
  * */
 
+
 #include <math.h>
 #define TRIALS 			pow(10, 9)
 #include <stdio.h>
-#include "../MT19937.h"
 
 #ifdef EXPONENTIAL
 #include "../exponential.h"
@@ -48,11 +48,13 @@ static unsigned long int *jsr_unused;
 #endif
 
 void main(int argc, char *argv[]){
-	SETUP;
 	double x = 0;
+	double start_time = (double)clock();
+	SETUP;
 	int i;
 	for (i=0; i<TRIALS; i++) x += (double)GENERATOR();
-
+	double end_time = (double)clock();
 	//Output
-	printf("Created %ld %s distributed pseudo-random numbers with mean %g \n", (long)TRIALS, NAME, x/TRIALS);
+	printf("Created %ld %s distributed pseudo-random numbers with mean %g in %g seconds.\n", (long)TRIALS, NAME, x/TRIALS, (end_time - start_time)/CLOCKS_PER_SEC);
+
 }
