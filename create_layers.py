@@ -2,8 +2,8 @@
 import numpy as np
 from numpy import abs
 
-eps = np.finfo(np.double).eps
-size = 256
+eps = 10*np.finfo(np.double).eps
+size = 1024
 
 TYPE = 'EXPONENTIAL' 
 #TYPE = 'NORMAL'
@@ -119,6 +119,7 @@ pmf, Map = realign(V)
 
 remaining_int_size = power(2, 56)
 max_uint64 = power(2, 64)
+max_int64 = power(2, 63)
 
 ipmf = np.uint64(pmf*remaining_int_size)
 ipmf[pmf >= 1] = -1
@@ -134,8 +135,8 @@ if TYPE == 'EXPONENTIAL':
 	Y /= max_uint64
 elif TYPE == 'NORMAL':
 	print('__NORM_TAIL_BEGIN__', X[0]) 
-	X *= power(2, -63)
-	Y *= power(2, -64)
+	X /= max_int64 
+	Y /= max_int64
 
 ######### OUTPUT
 output = open(TYPE.lower() + "_layers.h", 'w')

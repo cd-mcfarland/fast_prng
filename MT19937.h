@@ -259,7 +259,7 @@ typedef union RAND64_t {
 	uint32_t i[2];
 	double d;
 	uint64_t l;
-	int64_t sl;
+	signed long sl;
 } rand64_t;
 
 typedef union dW128_T {
