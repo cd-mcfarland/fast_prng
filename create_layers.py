@@ -3,10 +3,10 @@ import numpy as np
 from numpy import abs
 
 eps = 10*np.finfo(np.double).eps
-size = 1024
+size = 256
 
-TYPE = 'EXPONENTIAL' 
-#TYPE = 'NORMAL'
+#TYPE = 'EXPONENTIAL' 
+TYPE = 'NORMAL'
 
 def check_equal(x,y): assert (np.abs(x - y,dtype=np.longdouble) < eps).all(), "{:}  {:}".format(x,y)
 
