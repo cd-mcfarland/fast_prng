@@ -33,6 +33,6 @@ static inline double normal() {
 	if (i < __NORM_BINS__) return __norm_X__[i]*(double)(Rand++->sl); 
 	Rand++;
 	uint8_t j = _WDS_SAMPLER();
-	return j > 0 ? _norm_overhang(j) : 0; (Rand[-1].sl & 0x0000000000000001 ? 1 : -1)*_norm_tail();
+	return j > 0 ? _norm_overhang(j) : (Rand[-1].sl & 0x0000000000000100 ? 1. : -1)*_norm_tail();
 }
 #endif

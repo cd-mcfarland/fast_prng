@@ -6,10 +6,6 @@
 #define _XOPEN_SOURCE 600
 #endif
 
-#define I(x) { printf("%s: %ld\n",#x, (long)x); }
-#define F(x) { printf("%s: %g\n",#x,x); }
-
-
 /* __cycle__ defines the size of random number arrays in bytes*16!  It should be larger than 382--SEG-FAULT if not (no assertions)!! */
 #define __cycle__		500	
 
