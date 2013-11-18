@@ -472,7 +472,7 @@ rand64_t *Rand;
 static __m128d sse2_double_m_one;
 static __m128i sse2_int_set;
 
-void mt_init() {				// Returns a void pointer so that it can be assigned to a static variable, see MT_FLUSH() 
+void mt_init() {
     static int old = 0;
     if (old==1) return;
     old = 1;
