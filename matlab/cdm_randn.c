@@ -34,8 +34,7 @@
 #define ASSERT(a, b, c) { if (!(a)) mexErrMsgIdAndTxt(b, c); }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
- /*   ASSERT(nlhs == 1, "cdm_randn:maxlhs", "Too many output arguments.");
-*/   
+	ASSERT(nlhs == 1, "cdm_randn:maxlhs", "One output required.");
     normal_setup();
     if (nrhs == 0) {
         plhs[0] = mxCreateDoubleScalar(normal());

@@ -24,7 +24,7 @@
 #define ASSERT(a, b, c) { if (!(a)) mexErrMsgIdAndTxt(b, c); }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-	ASSERT(nlhs == 1, "CDM_ZIGGURAT:exprnd:maxlhs", "Too many output arguments.");
+	ASSERT(nlhs == 1, "CDM_ZIGGURAT:exprnd:maxlhs", "One output required.");
 	exponential_setup();
 	if (nrhs == 0) {
 		plhs[0] = mxCreateDoubleScalar(exponential());
