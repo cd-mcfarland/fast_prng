@@ -117,7 +117,6 @@ V /= V.mean()
 
 pmf, Map = realign(V)
 
-remaining_int_size = power(2, 64 - 8)
 max_uint64 = power(2, 64)
 max_int64 = power(2, 64 - 1)
 
@@ -131,7 +130,7 @@ if TYPE == 'EXPONENTIAL':
 	assert (m < Y[1: ]).all(),  'tangent line must be shallower than final derivative'
 	E = (Y[1:]-m*(1-X[1:]-np.log(m)))/dY
 	print('__EXP_MINIMAL_TEST__', np.uint64(E.max()*max_uint64))
-	X /= max_int64 #remaining_int_size
+	X /= max_int64 
 	Y /= max_int64
 elif TYPE == 'NORMAL':
 	print('__NORM_TAIL_BEGIN__', X[0]) 
