@@ -254,6 +254,7 @@ typedef union RAND64_t {
 	uint8_t  s[8];
 	uint32_t i[2];
 	double d;
+	float f[2];
 	uint64_t l;
 	signed long sl;
 } rand64_t;

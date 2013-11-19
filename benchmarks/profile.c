@@ -13,6 +13,12 @@
 #define TRIALS 			pow(10, 9)
 #include <stdio.h>
 
+#ifdef FLOAT_EXPONENTIAL
+#include "../float_exponential.h"
+#define SETUP			exponential_setup()
+#define GENERATOR()		exponential()
+#define NAME			"32-bit exponential"
+#endif
 #ifdef EXPONENTIAL
 #include "../exponential.h"
 #define SETUP			exponential_setup()

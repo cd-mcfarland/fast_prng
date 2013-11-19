@@ -5,8 +5,8 @@ from numpy import abs
 eps = 10*np.finfo(np.double).eps
 size = 256
 
-#TYPE = 'EXPONENTIAL' 
-TYPE = 'NORMAL'
+TYPE = 'EXPONENTIAL' 
+#TYPE = 'NORMAL'
 
 def check_equal(x,y): assert (np.abs(x - y,dtype=np.longdouble) < eps).all(), "{:}  {:}".format(x,y)
 
@@ -117,9 +117,9 @@ V /= V.mean()
 
 pmf, Map = realign(V)
 
-remaining_int_size = power(2, 56)
+remaining_int_size = power(2, 64 - 8)
 max_uint64 = power(2, 64)
-max_int64 = power(2, 63)
+max_int64 = power(2, 64 - 1)
 
 ipmf = np.uint64(pmf*remaining_int_size)
 ipmf[pmf >= 1] = -1
@@ -131,8 +131,8 @@ if TYPE == 'EXPONENTIAL':
 	assert (m < Y[1: ]).all(),  'tangent line must be shallower than final derivative'
 	E = (Y[1:]-m*(1-X[1:]-np.log(m)))/dY
 	print('__EXP_MINIMAL_TEST__', np.uint64(E.max()*max_uint64))
-	X /= remaining_int_size
-	Y /= max_uint64
+	X /= max_int64 #remaining_int_size
+	Y /= max_int64
 elif TYPE == 'NORMAL':
 	print('__NORM_TAIL_BEGIN__', X[0]) 
 	X /= max_int64 
