@@ -6,6 +6,13 @@ cdef extern from "../exponential.h":
 	double c_exponential "exponential"()
 
 exponential_setup()
+
+cdef extern from "../normal.h":
+	void normal_setup()
+	double c_normal "normal"()
+
+normal_setup()
+
 def exponential(double scale=1.0, size=None):
 	"""	exponential(scale=1.0, size=None)
 
@@ -52,13 +59,6 @@ See http://................................... for further details.
 			element += 1
 	return output.reshape(size)
 
-
-cdef extern from "../normal.h":
-	void normal_setup()
-	double c_normal "normal"()
-
-
-normal_setup()
 def normal(double loc=0.0, double scale=1.0, size=None):
 	"""normal(loc=0.0, scale=1.0, size=None)
 
