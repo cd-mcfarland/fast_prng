@@ -19,10 +19,9 @@ static inline double normal() {
 	if (i < __NORM_BINS__) {
 		return X[i]*Rand++->sl; 
 	}
-	double sign_bit = Rand++->l & 0x0000000000000100 ? 1. : -1;
+	double sign_bit = Rand++->l & 0x0000000000000100 ? 1. : -1.;
 	uint8_t j = _WDS_SAMPLER();
 	double x;
-	uint64_t temp;
 	if (j > 0) {
 		do {
 			MT_FLUSH();
