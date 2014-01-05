@@ -1,3 +1,6 @@
+#cython: boundscheck=False
+#cython: wraparound=False
+
 from numpy cimport *
 import numpy as np
 

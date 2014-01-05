@@ -1,13 +1,25 @@
-from distutils.core import setup
-from Cython.Build import cythonize
+from distutils.core import setup, Extension
+
+USE_CYTHON = False
+
+ext = '.pyx' if USE_CYTHON else '.c'
+
+Name = 'cdm_ziggurat'
+
+extensions = [Extension(Name, [Name+ext], extra_compile_args=['-O3'] )]
+
+if USE_CYTHON:
+	from Cython.Build import cythonize
+	extensions = cythonize(extensions)
 
 setup(
-	name='cdm_ziggurat',
+	name=Name,
 	version='1.0.0',
 	description='Fast exponential and normal Pseudo Random Number Generator',
 	author='Christopher McFarland',
-	url='',
+	author_email='christopherdmcfarland+pypi@gmail.com',	
 	maintainer_email='christopherdmcfarland+pypi@gmail.com',	
+	url='',
 	classifiers =[
 		'Programming Language :: Python',
 		'Programming Language :: Python :: 3',
@@ -23,6 +35,6 @@ setup(
 		],
 	license = 'MIT License',	
 	packages = [''],
-	ext_modules = cythonize("cdm_ziggurat.pyx")
+	ext_modules = extensions 
 )
 

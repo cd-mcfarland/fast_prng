@@ -289,10 +289,10 @@ static void gen_rand_array(w128_t *array, int size);
 inline static uint32_t func1(uint32_t x);
 inline static uint32_t func2(uint32_t x);
 static void period_certification(void);
-void mt_init();
-static inline dw128_t wide_uniform();
+void mt_init(void);
+static inline dw128_t wide_uniform(void);
 
-static inline double uniform_double();
+static inline double uniform_double(void);
 static inline unsigned long rand_long(unsigned long n);
 #if defined(__SSE2__)
 /** 
@@ -473,7 +473,7 @@ rand64_t *Rand;
 static __m128d sse2_double_m_one;
 static __m128i sse2_int_set;
 
-void mt_init() {
+void mt_init(void) {
     static int old = 0;
     if (old==1) return;
     old = 1;
@@ -549,7 +549,7 @@ void mt_init() {
 #define MT_FLUSH() { if (Rand > (rand64_t *)iRend) { gen_rand_array(iRandS,__cycle__); Rand = (rand64_t *) iRandS; }; } 
 
 
-static inline dw128_t wide_uniform() {
+static inline dw128_t wide_uniform(void) {
   MT_FLUSH();
   dw128_t W;
   W.si = _mm_set_epi64x(Rand[0].l, Rand[1].l);	
@@ -559,7 +559,7 @@ static inline dw128_t wide_uniform() {
   return W;
 }
 
-static inline double uniform_double() {
+static inline double uniform_double(void) {
   MT_FLUSH();
   Rand->l = (Rand->l >> 2) | __EXP_SET__;
   return Rand++->d - 1;
