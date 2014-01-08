@@ -45,5 +45,11 @@ static inline double exponential(void) {
 	uint8_t j = _WDS_SAMPLER(); 
 	return j == 0 ? 7.56927469415 + exponential() : _exp_overhang(j);
 }
-#endif
 
+static inline void fill_array_exponential(double *X, int size) {
+	double *x, *end = X + size;
+	for (x = X; x < end; x++) {
+		*x = exponential();
+	}
+}
+#endif

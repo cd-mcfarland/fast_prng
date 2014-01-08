@@ -16,8 +16,8 @@ cdef extern from "../normal.h":
 
 normal_setup()
 
-def exponential(double scale=1.0, size=None):
-	"""	exponential(scale=1.0, size=None)
+def exponential(double scale=1.0, size=1):
+	"""	exponential(scale=1.0, size=1)
 
 Exponential distribution.
 
@@ -45,9 +45,9 @@ size : tuple of ints
 
 See http://................................... for further details.
 """
-	cdef long totalSize = np.multiply.reduce(size) if size else 1
+	cdef long totalSize = np.multiply.reduce(size)
 	cdef double *element, *end	
-	cdef ndarray[dtype=double, ndim=1] output = np.empty(totalSize)
+	cdef ndarray[dtype=double, ndim=1] output = np.empty(shape=size, order='C')
 	
 	element = &(output[0]) 
 	end = element + totalSize
@@ -60,7 +60,7 @@ See http://................................... for further details.
 		while element < end:
 			element[0] = c_exponential()
 			element += 1
-	return output.reshape(size)
+	return output
 
 def normal(double loc=0.0, double scale=1.0, size=None):
 	"""normal(loc=0.0, scale=1.0, size=None)

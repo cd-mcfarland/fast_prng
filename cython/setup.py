@@ -1,6 +1,6 @@
 from distutils.core import setup, Extension
 
-USE_CYTHON = False
+USE_CYTHON = True
 
 ext = '.pyx' if USE_CYTHON else '.c'
 
