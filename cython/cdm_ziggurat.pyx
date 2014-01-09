@@ -1,5 +1,5 @@
-#cython: boundscheck=False
-#cython: wraparound=False
+#cython: cdivision=True
+#cython: overflowcheck=False
 
 from numpy cimport *
 import numpy as np
@@ -17,7 +17,7 @@ cdef extern from "../normal.h":
 normal_setup()
 
 def exponential(double scale=1.0, size=1):
-	"""	exponential(scale=1.0, size=1)
+	"""exponential(scale=1.0, size=1)
 
 Exponential distribution.
 
@@ -47,7 +47,7 @@ See http://................................... for further details.
 """
 	cdef long totalSize = np.multiply.reduce(size)
 	cdef double *element, *end	
-	cdef ndarray[dtype=double, ndim=1] output = np.empty(shape=size, order='C')
+	cdef ndarray[dtype=double, ndim=1] output = np.empty(size, order='C')
 	
 	element = &(output[0]) 
 	end = element + totalSize
@@ -60,10 +60,10 @@ See http://................................... for further details.
 		while element < end:
 			element[0] = c_exponential()
 			element += 1
-	return output
+	return output.reshape(size)
 
-def normal(double loc=0.0, double scale=1.0, size=None):
-	"""normal(loc=0.0, scale=1.0, size=None)
+def normal(double loc=0.0, double scale=1.0, size=1):
+	"""normal(loc=0.0, scale=1.0, size=1)
 
 Draw random samples from a normal (Gaussian) distribution.
 
@@ -85,9 +85,9 @@ size : tuple of ints
 
 see http://................................ for further details. 
 """
-	cdef long totalSize = np.multiply.reduce(size) if size else 1
+	cdef long totalSize = np.multiply.reduce(size) 
 	cdef double *element, *end
-	cdef ndarray[dtype=double, ndim=1] output = np.empty(totalSize)
+	cdef ndarray[dtype=double, ndim=1] output = np.empty(totalSize, order='C')
 
 	element = &(output[0])
 	end = element + totalSize
