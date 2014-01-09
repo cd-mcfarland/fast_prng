@@ -47,7 +47,7 @@ See http://................................... for further details.
 """
 	cdef long totalSize = np.multiply.reduce(size)
 	cdef double *element, *end	
-	cdef ndarray[dtype=double, ndim=1] output = np.empty(size, order='C')
+	cdef ndarray[dtype=double, ndim=1] output = np.empty(totalSize, order='C')
 	
 	element = &(output[0]) 
 	end = element + totalSize
