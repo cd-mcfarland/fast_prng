@@ -23,6 +23,8 @@
 
 #define ASSERT(a, b, c) { if (!(a)) mexErrMsgIdAndTxt(b, c); }
 
+
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	ASSERT(nlhs == 1, "CDM_ZIGGURAT:exprnd:maxlhs", "One output required.");
 	exponential_setup();
@@ -52,7 +54,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			dims[i] = (int64_t)(mxGetScalar(prhs[i+1]));
 		}
 	}
+/*
 	plhs[0] = mxCreateNumericArray(n_dims, dims, mxDOUBLE_CLASS, mxREAL);
+*/
+	plhs[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
+	ASSERT(mxSetDimensions(plhs[0], dims, n_dims), "memory allocation failed.")
+
 	double *element = mxGetPr(plhs[0]);
 	double *end = element + mxGetNumberOfElements(plhs[0]);
 	while (element < end) {
