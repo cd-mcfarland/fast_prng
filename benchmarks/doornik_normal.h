@@ -1,6 +1,6 @@
 #ifndef __doornik_zignor__
 #define	__doornik_zignor__
-#include "MT19937.h"
+#include "../MT19937.h"
 #include <math.h>
 
 #define DRanU()	uniform_double()

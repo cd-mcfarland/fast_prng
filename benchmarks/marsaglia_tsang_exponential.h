@@ -3,7 +3,7 @@
 # include <math.h>
 # include <time.h>
 
-# include "MT19937.h"
+# include "../MT19937.h"
 
 /******************************************************************************/
 
@@ -73,13 +73,13 @@ float r4_exp ( unsigned long int *jsr, int ke[256], float fe[256],
     {
       if ( iz == 0 )
       {
-        value = 7.69711 - log ( /* r4_uni ( jsr ) */ uniform_double() );
+        value = 7.69711 - log ( /* r4_uni ( jsr ) */ uniform_double_PRN() );
         break;
       }
 
       x = ( float ) ( abs ( jz ) ) * we[iz];
 
-      if ( fe[iz] + /* r4_uni ( jsr ) */ uniform_double() * ( fe[iz-1] - fe[iz] ) < exp ( - x ) )
+      if ( fe[iz] + /* r4_uni ( jsr ) */ uniform_double_PRN() * ( fe[iz-1] - fe[iz] ) < exp ( - x ) )
       {
         value = x;
         break;

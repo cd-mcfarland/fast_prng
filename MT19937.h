@@ -292,7 +292,7 @@ static void period_certification(void);
 void mt_init(void);
 static inline dw128_t wide_uniform(void);
 
-static inline double uniform_double(void);
+static inline double uniform_double_PRN(void);
 static inline unsigned long rand_long(unsigned long n);
 #if defined(__SSE2__)
 /** 
@@ -559,7 +559,7 @@ static inline dw128_t wide_uniform(void) {
   return W;
 }
 
-static inline double uniform_double(void) {
+static inline double uniform_double_PRN(void) {
   MT_FLUSH();
   Rand->l = (Rand->l >> 2) | __EXP_SET__;
   return Rand++->d - 1;
