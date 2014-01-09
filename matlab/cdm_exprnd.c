@@ -58,8 +58,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	double *element = mxGetPr(plhs[0]);
 	double *end = element + mxGetNumberOfElements(plhs[0]);
 	
-	while (element < end) {
-		*element = mu*exponential();
-		element++;
+	if (mu == 1) {
+		while (element < end) {
+			*element = exponential();
+			element++;
+		}
 	}
+	else { 
+		while (element < end) {
+			*element = mu*exponential();
+			element++;
+		}
+	}
+
 }
