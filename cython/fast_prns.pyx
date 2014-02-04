@@ -28,12 +28,7 @@ Its probability density function is
 for ``x > 0`` and 0 elsewhere. :math:`\beta` is the scale parameter,
 which is the inverse of the rate parameter :math:`\lambda = 1/\beta`.
 The rate parameter is an alternative, widely used parameterization
-of the exponential distribution [3]_.
-
-The exponential distribution is a continuous analogue of the
-geometric distribution.  It describes many common situations, such as
-the size of raindrops measured over many rainstorms [1]_, or the time
-between page requests to Wikipedia [2]_.
+of the exponential distribution.
 
 Parameters
 ----------
