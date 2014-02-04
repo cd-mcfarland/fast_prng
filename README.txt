@@ -22,18 +22,15 @@ INSTALLATION & USAGE
 		Make sure the compiled functions are within the Matlab Path. Usage of 
 		the two functions mimics exprnd and randn.  	
 
-
 CONTACT
 
-	If you have any questions or suggestions, please contact me at 
-	christopherdmcfarland+fast_prns@gmail.com
-
+	Feedback is most appreciated. If you have any questions or suggestions, 
+	please contact me at christopherdmcfarland+fast_prns@gmail.com
 
 WEBSITE
 
 	All documentation and source code can be found at 
 	https://bitbucket.org/cdmcfarland/fast_prns
-
 
 FILE MANIFEST
 
