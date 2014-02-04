@@ -36,7 +36,8 @@ setup(
 		'Topic :: Scientific/Engineering',
 		],
 	license = 'MIT License',	
-	packages = ['distutils', 'distutils.core', 'numpy'],
+#	packages = ['distutils', 'distutils.core', 'numpy'],
+	requires=['numpy'],
 	ext_modules = extensions 
 )
 

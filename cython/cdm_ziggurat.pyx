@@ -4,13 +4,13 @@
 from numpy cimport *
 import numpy as np
 
-cdef extern from "../exponential.h":
+cdef extern from "exponential.h":
 	void exponential_setup()
 	double c_exponential "exponential"()
 
 exponential_setup()
 
-cdef extern from "../normal.h":
+cdef extern from "normal.h":
 	void normal_setup()
 	double c_normal "normal"()
 
@@ -43,7 +43,7 @@ size : tuple of ints
     Number of samples to draw.  The output is shaped
     according to `size`.
 
-See http://................................... for further details.
+See https://bitbucket.org/cdmcfarland/fast_prns for further details.
 """
 	cdef long totalSize = np.multiply.reduce(size)
 	cdef double *element, *end	
@@ -83,7 +83,7 @@ size : tuple of ints
     Output shape.  If the given shape is, e.g., ``(m, n, k)``, then
     ``m * n * k`` samples are drawn.
 
-see http://................................ for further details. 
+see https://bitbucket.org/cdmcfarland/fast_prns for further details. 
 """
 	cdef long totalSize = np.multiply.reduce(size) 
 	cdef double *element, *end
