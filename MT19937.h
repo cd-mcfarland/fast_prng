@@ -6,13 +6,40 @@
 #define _XOPEN_SOURCE 600
 #endif
 
-/* __cycle__ defines the size of random number arrays in bytes*16!  It should be larger than 382--SEG-FAULT if not (no assertions)!! */
+/** New functionality:
+ *
+ *  __cycle__ (def: 500): defines the size of random number array in bytes*16. 
+ *  It should be larger than 382, otherwise will SEG-FAULT. 
+ *
+ *	rand64_t: 64-bit type for access of random bytes
+ *	dw128_t	: 128-bit type for SIMD instructions
+ *
+ *  mt_init(): initializes PRN generator. Seeds from CPU time, PID, and parent 
+ *  PID. Can be called multiple times without any issues or overhead. 
+ *
+ *  wide_uniform() -> 128 random bits.
+ *  uniform_double_PRN() -> uniform double PRN on domain [0, 1).
+ *  rand_long(unsigned long n) -> uniform unsigned long PRN on domain [0, n).
+ *
+ *  static rand64_t Rand: a public random variable that points to the next 
+ *  unused element in the random number array. This pointer allows for more
+ *  rapid access of these numbers, but can SEG FAULT if used improperly. 
+ *  After 64 random bits are used, this pointer should be incremented. Call
+ *  MT_FLUSH() every two times this pointer is incremented to avoid a SEG FAULT.
+ *
+ *	MT_FLUSH(): repopulates array of random numbers when Rand is near end of 
+ *	array and moves Rand back to beginning of array.  
+ * 
+ *	Lastly, this code now uses 19937 as the default Mersenne Prime.
+ *
+ **/
+
 #define __cycle__		500	
 
-
-/* ORIGINAL */
-
 /** 
+ * Original Documentation: 
+ *
+ *
  * @file SFMT.h 
  *
  * @brief SIMD oriented Fast Mersenne Twister(SFMT) pseudorandom
@@ -42,12 +69,6 @@
  * unsigned int and 64-bit unsigned int in hexadecimal format.
  */
  
-/* NOW: I'm trying to simplify this massive code so that it can only be used in
-a straight forward way: 1 Merssene Prime: 19937, 1 way to make random numbers:
-via an array--other ways are slower, all assertions are enforced at compilation,
-automatic initialization via 1 way: using time, PID, and PPID, and ways to 
-minimize array checks */
-
 #ifndef SFMT_H
 #define SFMT_H
 
@@ -535,7 +556,8 @@ void mt_init(void) {
 		  + psfmt32[(i + N32 - 1) % N32]);
 	psfmt32[(i + mid) % N32] ^= r;
 	r -= i;
-	psfmt32[(i + mid + lag) % N32] ^= r;sse2_double_m_one = _mm_set_pd(-1.0, -1.0);
+	psfmt32[(i + mid + lag) % N32] ^= r;
+	sse2_double_m_one = _mm_set_pd(-1.0, -1.0);
 	psfmt32[i] = r;
 	i = (i + 1) % N32;
     }
@@ -546,8 +568,10 @@ void mt_init(void) {
 	Rand = (rand64_t *)iRandS;
 }
 
-#define MT_FLUSH() { if (Rand > (rand64_t *)iRend) { gen_rand_array(iRandS,__cycle__); Rand = (rand64_t *) iRandS; }; } 
-
+#define MT_FLUSH() { if (Rand > (rand64_t *)iRend) { \
+gen_rand_array(iRandS,__cycle__); \
+Rand = (rand64_t *) iRandS; \
+}; } 
 
 static inline dw128_t wide_uniform(void) {
   MT_FLUSH();
