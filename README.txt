@@ -70,11 +70,17 @@ FILE MANIFEST
 	
 	benchmarks/  
 	
-		Collection of scripts used to profile for the main text. profile.c 
-		requires a definition at compile-time (EXPONENTIAL, NORMAL, MARSAGLIA,
-		DOORNIK) that chooses the algorithm to profile. Competing code to this
-		program, modified to accept uniform PRNs from MT19937.h is also 
-		provided. 
+		Collection of scripts used to profile. 
+		profile.c requires a definition at compile-time (EXPONENTIAL, NORMAL, 
+		MARSAGLIA, DOORNIK) that chooses the algorithm to profile. E.g. usage:
+
+		  $ gcc -O3 -DNORMAL profile.c -lm -o normal.out
+		  $ ./normal.out 
+		  Created 1000000000 standard normal distributed pseudo-random numbers 
+		  with mean -3.18405e-05 in 3.33 seconds.
+
+		Competing algorithms, modified to accept uniform PRNs from MT19937.h,
+		are also provided. 
 	
 	matlab/  
 	
