@@ -1,0 +1,7 @@
+include fast_prns.c  
+include fast_prns.pyx  
+
+include exponential.h
+include normal.h
+include MT19937.h      
+
