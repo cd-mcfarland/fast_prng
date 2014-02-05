@@ -10,7 +10,7 @@ INSTALLATION & USAGE
 
 	Use in Python:
 
-		Install using Pip
+		Install using Pip via https://pypi.python.org/pypi/fast_prns
 
 	Use in Matlab:
 
@@ -75,10 +75,6 @@ FILE MANIFEST
 		DOORNIK) that chooses the algorithm to profile. Competing code to this
 		program, modified to accept uniform PRNs from MT19937.h is also 
 		provided. 
-	
-	cython/ 
-
-		Extension & setup.py script for Python.
 	
 	matlab/  
 	
