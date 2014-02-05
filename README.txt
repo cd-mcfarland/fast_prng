@@ -1,6 +1,12 @@
+OVERVIEW
+
+    An unfinished manuscript can be found here:
+	https://docs.google.com/document/d/1BRF8lhebODmYfku_tW0B38phyiOuplsU1UZuaOsRWfE/edit?usp=sharing
+
+
 INSTALLATION & USAGE
 
-    Use in C/C++:
+    Usage in C/C++:
 
         Simply include this directory in the path of your compiler. See 
         benchmarks/profile.c for an example of usage. This program should 
@@ -8,11 +14,11 @@ INSTALLATION & USAGE
 
             gcc -O3 -DEXPONENTIAL profile.c -lm -o exponential_profiler.out
 
-    Use in Python:
+    Usage in Python:
 
         Install using Pip via https://pypi.python.org/pypi/fast_prns
 
-    Use in Matlab:
+    Usage in Matlab:
 
         Compile within the Matlab directory using: 
 
