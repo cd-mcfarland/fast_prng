@@ -1,6 +1,6 @@
 /* Text wrapping is not recommended for this document 
  * 
- * Exponential PRN generator. Must call exponential_setup() to initialize the
+ * Exponential PRNG generator. Must call exponential_setup() to initialize the
  * uniform PRN.
  *
  * exponential() -> Exponentially-distributed PRN with mean 1. 

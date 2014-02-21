@@ -16,7 +16,7 @@ INSTALLATION & USAGE
 
     Usage in Python:
 
-        Install using Pip via https://pypi.python.org/pypi/fast_prns
+        Install using Pip via https://pypi.python.org/pypi/fast_prng
 
     Usage in Matlab:
 
@@ -31,12 +31,12 @@ INSTALLATION & USAGE
 CONTACT
 
     Feedback is most appreciated. If you have any questions or suggestions, 
-    please contact me at christopherdmcfarland+fast_prns@gmail.com
+    please contact me at christopherdmcfarland+fast_prng@gmail.com
 
 WEBSITE
 
     All documentation and source code can be found at 
-    https://bitbucket.org/cdmcfarland/fast_prns
+    https://bitbucket.org/cdmcfarland/fast_prng
 
 FILE MANIFEST
 
@@ -45,16 +45,16 @@ FILE MANIFEST
         Modified code of Super-Fast Mersene Twister used to generate uniform
         PRNs (http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/). Some code
         designed to support older architectures was removed, as this package
-        was not tested on those architectures. Functions for seeding the PRN 
-        generator and accessing the array of PRNs were added.
+        was not tested on those architectures. Functions for seeding the PRNG 
+        and accessing the array of PRNs were added.
     
     exponential.h  
     
-        Exponential PRN generator to be used with C/C++ code.         
+        Exponential PRNG to be used with C/C++ code.         
 
     normal.h  
 
-        Normal PRN generator to be used with C/C++ code. 
+        Normal PRNG to be used with C/C++ code. 
 
 
     create_layers.py  
@@ -90,4 +90,5 @@ FILE MANIFEST
     
     matlab/  
     
+default = https://cdmcfarland@bitbucket.org/cdmcfarland/scripts
         Extensions for Matlab/Octave.
