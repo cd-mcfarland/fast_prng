@@ -34,7 +34,7 @@ static inline double normal(void) {
 	MT_FLUSH();
 /* Efficiently accesses last 8 bytes of Rand->l; hence, 1 64-bit random number 
  * can be used to select i and then a length within X[i] */
-	uint8_t i = Rand->l & 0x00000000000000ff; 
+	uint8_t i = Rand->l & 255; 
 	if (i < __NORM_BINS__) {
 		return X[i]*Rand++->sl; 
 	}

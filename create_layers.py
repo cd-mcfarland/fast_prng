@@ -1,4 +1,9 @@
 #!/usr/bin/python3.2
+#
+# This script creates the 3 pre-computed lookup tables: X, Y = f(X), and A, for both the exponential and normal PRNG.
+# Values are calculated to longdouble precision and then rounded to double precision.
+# Tables are output into a C header file.
+
 import numpy as np
 from numpy import abs
 
@@ -8,7 +13,9 @@ size = 256
 TYPE = 'EXPONENTIAL' 
 #TYPE = 'NORMAL'
 
-def check_equal(x,y): assert (np.abs(x - y,dtype=np.longdouble) < eps).all(), "{:}  {:}".format(x,y)
+def check_equal(x,y): 
+	"""check_equal(x, y) -> raise Assertion Error if values in x & y differ by more than double precision"""
+	assert (np.abs(x - y,dtype=np.longdouble) < eps).all(), "{:}  {:}".format(x,y)
 
 def fsolve(f, a, b, xtol=1e-18):
 	""" fsolve(f, fprime, x0, xtol=1e-18) -> x: f(x) = 0; implemented to longdouble precision
