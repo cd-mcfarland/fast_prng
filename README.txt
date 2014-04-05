@@ -1,18 +1,19 @@
 OVERVIEW
 
-    An unfinished manuscript can be found here:
-    https://docs.google.com/document/d/1BRF8lhebODmYfku_tW0B38phyiOuplsU1UZuaOsRWfE/edit?usp=sharing
-
+    This code is the implementation of an algorithm described here:
+	http://arxiv.org/abs/1403.6870
 
 INSTALLATION & USAGE
 
     Usage in C/C++:
 
-        Simply include this directory in the path of your compiler. See 
-        benchmarks/profile.c for an example of usage. This program should 
-        compile and profile the exponential algorithm with the command:
+        Simply include this directory in the path of your compiler. For an 
+		example of using the exponential PRNG library (exponential.h), see 
+		benchmarks/profile.c. This program is compiled with the command:
 
             gcc -O3 -DEXPONENTIAL profile.c -lm -o exponential_profiler.out
+
+		normal.h contains code for the normal PRNG.
 
     Usage in Python:
 
@@ -42,11 +43,11 @@ FILE MANIFEST
 
     MT19937.h  
 
-        Modified code of Super-Fast Mersene Twister used to generate uniform
-        PRNs (http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/). Some code
-        designed to support older architectures was removed, as this package
-        was not tested on those architectures. Functions for seeding the PRNG 
-        and accessing the array of PRNs were added.
+        Modified code of Super-Fast Mersene Twister used for uniform PRNG
+        (http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/). Some code that
+        supported older architectures was removed. Functions for seeding the 
+		PRNG and accessing the array of PRNs without unnecessary bounds-checking
+		were added.
     
     exponential.h  
     
@@ -56,18 +57,15 @@ FILE MANIFEST
 
         Normal PRNG to be used with C/C++ code. 
 
-
     create_layers.py  
 
-        Python script used to calculate X, i_max, A, f(X), and epsilon, as 
-        described in the main text. All calculations are done to 128-bit 
-        precision and then rounded to 64-bit precision to ensure no 
-        rounding errors.
+        Python script that calculates X, i_max, A, f(X), and epsilon (described
+		in the main text). All calculations are done to 128-bit precision, and 
+		then rounded to 64-bit precision to avoid rounding errors.
     
     erfl.pyx  
 
-        Error function calculated to long double precision transfered to 
-        python for create_layers.py
+        128-bit precision Error function for create_layers.py
     
     quality_test.c 
 
@@ -90,5 +88,4 @@ FILE MANIFEST
     
     matlab/  
     
-default = https://cdmcfarland@bitbucket.org/cdmcfarland/scripts
         Extensions for Matlab/Octave.
