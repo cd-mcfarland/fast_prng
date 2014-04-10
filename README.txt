@@ -59,7 +59,7 @@ FILE MANIFEST
 
     create_layers.py  
 
-        Python script that calculates X, i_max, A, f(X), and epsilon (described
+        Python script that calculates X, L_max, A, f(X), and epsilon (described
 		in the main text). All calculations are done to 128-bit precision, and 
 		then rounded to 64-bit precision to avoid rounding errors.
     
