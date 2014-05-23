@@ -1,19 +1,19 @@
 OVERVIEW
 
-    This code is the implementation of an algorithm described here:
-	http://arxiv.org/abs/1403.6870
+    This code is the implementation of a exponentially- and normally-distributed
+    PseudoRandom Number Generator described at http://arxiv.org/abs/1403.6870
 
 INSTALLATION & USAGE
 
     Usage in C/C++:
 
         Simply include this directory in the path of your compiler. For an 
-		example of using the exponential PRNG library (exponential.h), see 
-		benchmarks/profile.c. This program is compiled with the command:
+        example of using the exponential PRNG library (exponential.h), see 
+        benchmarks/profile.c. This program is compiled with the command:
 
             gcc -O3 -DEXPONENTIAL profile.c -lm -o exponential_profiler.out
 
-		normal.h contains code for the normal PRNG.
+        normal.h contains code for the normal PRNG.
 
     Usage in Python:
 
@@ -46,8 +46,8 @@ FILE MANIFEST
         Modified code of Super-Fast Mersene Twister used for uniform PRNG
         (http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/). Some code that
         supported older architectures was removed. Functions for seeding the 
-		PRNG and accessing the array of PRNs without unnecessary bounds-checking
-		were added.
+        PRNG and accessing the array of PRNs without unnecessary bounds-
+        checking were added.
     
     exponential.h  
     
@@ -60,8 +60,7 @@ FILE MANIFEST
     create_layers.py  
 
         Python script that calculates X, L_max, A, f(X), and epsilon (described
-		in the main text). All calculations are done to 128-bit precision, and 
-		then rounded to 64-bit precision to avoid rounding errors.
+        in the main text). All calculations are done to 128-bit precision, and         then rounded to 64-bit precision to avoid rounding errors.
     
     erfl.pyx  
 
