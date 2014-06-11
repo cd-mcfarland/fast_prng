@@ -1,4 +1,4 @@
-#!/usr/bin/python3.2
+#!/usr/bin/python3
 #
 # This script creates the 3 pre-computed lookup tables: X, Y = f(X), and A, for both the exponential and normal PRNG.
 # Values are calculated to longdouble precision and then rounded to double precision.
@@ -10,8 +10,8 @@ from numpy import abs
 eps = 10*np.finfo(np.double).eps
 size = 256
 
-TYPE = 'EXPONENTIAL' 
-#TYPE = 'NORMAL'
+#TYPE = 'EXPONENTIAL' 
+TYPE = 'NORMAL'
 
 def check_equal(x,y): 
 	"""check_equal(x, y) -> raise Assertion Error if values in x & y differ by more than double precision"""
@@ -126,9 +126,10 @@ pmf, Map = realign(V)
 
 max_uint64 = power(2, 64)
 max_int64 = power(2, 64 - 1)
+max_uint56 = power(2, 56)
 
-ipmf = np.uint64(pmf*remaining_int_size)
-ipmf[pmf >= 1] = -1
+ipmf = np.uint64(pmf*np.longdouble(max_uint56))    # WDS sampler uses first 8 bits of 64-bit random uint to sample an 8-bit integer
+ipmf[pmf >= 1] = max_uint56
 
 
 if TYPE == 'EXPONENTIAL':
