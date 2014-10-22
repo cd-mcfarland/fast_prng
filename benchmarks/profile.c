@@ -1,10 +1,13 @@
 /* 
- * Returns the raw moments of a pseudorandom number generator.
+ * Returns the execution time of a PseudoRandom Number Generator (PRNG). A mean
+ * is also provided as a sanity check. 
  * 
- * This program confirms that the distributions in this library behave as
- * intended. Unlike central moments, raw moments are always unbiased estimators 
- * of the expected value of the raw moment. (e.g. The sample variance is an 
- * unbiased estimator of variance only if adjusted by a factor of N/(N - 1).)
+ * This program is used to profile the various Ziggurat Algorithms available 
+ * today. It profiles algorithms provided in this package along with algorithms 
+ * provided in other recent publications. You must define the algorithm to 
+ * profile during compilation, e.g.
+ *
+ * gcc -O2 -DEXPONENTIAL -o profile.out profile.c 
  *
  * */
 
@@ -23,13 +26,13 @@
 #include "../exponential.h"
 #define SETUP			exponential_setup()
 #define GENERATOR()		exponential()
-#define NAME			"exponential"
+#define NAME			"exponential (Modified Ziggurat)"
 #endif
 #ifdef NORMAL
 #include "../normal.h"
 #define SETUP			normal_setup()
 #define GENERATOR()		normal()
-#define NAME			"standard normal"
+#define NAME			"Standard Normal (Modified Ziggurat)"
 #endif
 #ifdef POISSON
 #include "../poisson.h"
@@ -53,7 +56,7 @@ static unsigned long int *jsr_unused;
 #define GENERATOR()		r4_exp(jsr_unused, ke, fe, we)
 #endif
 
-void main(int argc, char *argv[]){
+int main(int argc, char *argv[]){
 	double x = 0;
 	double start_time = (double)clock();
 	SETUP;
@@ -61,6 +64,6 @@ void main(int argc, char *argv[]){
 	for (i=0; i<TRIALS; i++) x += (double)GENERATOR();
 	double end_time = (double)clock();
 	//Output
-	printf("Created %ld %s distributed pseudo-random numbers with mean %g in %g seconds.\n", (long)TRIALS, NAME, x/TRIALS, (end_time - start_time)/CLOCKS_PER_SEC);
-
+	printf("Created %ld %s distributed PRNs with mean %g in %g seconds.\n", (long)TRIALS, NAME, x/TRIALS, (end_time - start_time)/CLOCKS_PER_SEC);
 }
+

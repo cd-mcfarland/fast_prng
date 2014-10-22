@@ -3,7 +3,7 @@
 #include "../MT19937.h"
 #include <math.h>
 
-#define DRanU()	uniform_double()
+#define DRanU()	uniform_double_PRN()
 
 static double DRanNormalTail(double dMin, int iNegative)
 {
