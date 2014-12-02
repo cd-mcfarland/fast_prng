@@ -3,17 +3,21 @@
  * Normal PRN generator. Must call normal_setup() to initialize the
  * uniform PRN.
  *
- * normal() -> Standard normally-distributed PRN. 
+ * normal() -> Standard normal PRN variate. 
  *
  * */
 
 #ifndef __cdm_z_norm__
 #define __cdm_z_norm__	
-#include "MT19937.h"
-/* Exponential PRNs are used to sample from the tail. A few precompiler 
- * functions are also recycled. */
-#include "exponential.h"
+#include "shared.h"         /* Functions used both in exponential.h and here */
+#include "exponential.h"    /* Sampling from the tail uses exponential PRNs  */
 #define __NORM_BINS__	253
+#ifndef INFER_TIMINGS
+#define __NORM_I_MAX__  __NORM_BINS__
+#else
+#define __NORM_I_MAX__ 2*__NORM_BINS__ - 256
+#endif
+
 void normal_setup(void) {
   mt_init();
 }
@@ -35,32 +39,72 @@ static inline double normal(void) {
 /* Efficiently accesses last 8 bytes of Rand->l; hence, 1 64-bit random number 
  * can be used to select i and then a length within X[i] */
 	uint8_t i = Rand->l & 255; 
-	if (i < __NORM_BINS__) {
+	if (i < __NORM_I_MAX__) {
 		return X[i]*Rand++->sl; 
 	}
 /* The sign bit is still one of the 12 bits that was squashed in the 
- * transformation of a uniform inteter into a double-precision floating point 
+ * transformation of a uniform integer into a double-precision floating point 
  * number. */
 	double sign_bit = Rand++->l & 0x0000000000000100 ? 1. : -1.;
-	uint8_t j = _WDS_SAMPLER();
-	double x;
-	if (j > 0) {
-/* Sample an overhang */
-		do {
-			MT_FLUSH();
-			x = _CDM_SAMPLE(X[j], X[j-1], Rand->sl, pow(2, 63));
-			Rand++;
-		}	
-		while (_CDM_SAMPLE(Y[j-1], Y[j], Rand++->l & 0x7fffffffffffffff, pow(2, 63)) > exp(-x*x/2));
-	}
-	else {
-/*Sample from the tail */
-		do {
-			x = pow(X_0, -1)*exponential();
+	i = _WDS_SAMPLER();
+    static uint8_t i_inflection = 205;
+    double x, y;
+        /* Four kinds of overhangs: 
+         *  i = 0                :  Sample from tail
+         *  0 < i < i_inflection :  Overhang is concave; only sample from Lower-Left triangle
+         *  i = i_inflection     :  Must sample from entire overhang rectangle
+         *  i > i_inflection     :  Overhangs are convex; implicitly accept point in Lower-Left triangle
+         * */
+    if (i > 0) {
+#ifndef SIMPLE_OVERHANGS
+        if (i > i_inflection) {     /* Convex overhang */
+            do {
+                MT_FLUSH();
+                x = _CDM_SAMPLE(X[i], X[i-1], GET_63_BITS);
+                if (Rand[-1].l < Rand[0].l) { 
+                    /* Can implicitly accept */
+                    Rand++;
+                    return sign_bit*x;
+                }
+            y = _CDM_SAMPLE(Y[i-1], Y[i], pow(2, 63) - GET_63_BITS);
+            }
+            while ( y > exp(-0.5*x*x) );
+        }
+        else {
+            if (i < i_inflection) { /* Concave overhang */
+                do {   
+                    MT_FLUSH();
+                    if (Rand[0].l > Rand[1].l) {
+                        y = _CDM_SAMPLE(Y[i-1], Y[i], pow(2, 63) - GET_63_BITS);
+                        x = _CDM_SAMPLE(X[i], X[i-1], GET_63_BITS); 
+                    }
+                    else {
+                        x = _CDM_SAMPLE(X[i], X[i-1], GET_63_BITS); 
+                        y = _CDM_SAMPLE(Y[i-1], Y[i], pow(2, 63) - GET_63_BITS);
+                    }
+                }
+		        while ( y > exp(-0.5*x*x) );
+            }
+            else {                  /* Inflection-point overhang */
+#endif
+                do {
+                    MT_FLUSH();
+                    x = _CDM_SAMPLE(X[i],   X[i-1], GET_63_BITS);
+                    y = _CDM_SAMPLE(Y[i-1], Y[i],   GET_63_BITS);
+                }
+	            while ( y > exp(-0.5*x*x) );
+#ifndef SIMPLE_OVERHANGS
+            }
+        }
+#endif
+    }
+	else {                          /* Tail */
+        do {
+            x = pow(X_0, -1)*exponential();
 		}
-		while (2*exponential() < x*x);
-	}
-	return sign_bit*x; 
+        while (2*exponential() < x*x);
+        x += X_0;
+    }
+    return sign_bit*x; 
 }
 #endif
-

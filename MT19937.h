@@ -17,9 +17,10 @@
  *  mt_init(): initializes PRN generator. Seeds from CPU time, PID, and parent 
  *  PID. Can be called multiple times without any issues or overhead. 
  *
- *  wide_uniform() -> 128 random bits.
- *  uniform_double_PRN() -> uniform double PRN on domain [0, 1).
- *  rand_long(unsigned long n) -> uniform unsigned long PRN on domain [0, n).
+ *  wide_uniform()              -> 128 random bits.
+ *  uniform_double_PRN()        -> uniform double PRN on domain [0, 1).
+ *  rand_long(unsigned long n)  -> uniform unsigned long PRN on [0, n).
+ *  rand_long64()               -> uniform unsigned long PRN on [2, 2^64).
  *
  *  static rand64_t Rand: a public random variable that points to the next 
  *  unused element in the random number array. This pointer allows for more
@@ -29,6 +30,9 @@
  *
  *	MT_FLUSH(): repopulates array of random numbers when Rand is near end of 
  *	array and moves Rand back to beginning of array.  
+ * 
+ *  Defining the variable REPORT_PRNS will execute a command that reports the
+ *  number of PRNs used during execution at exit. 
  * 
  *	Lastly, this code now uses 19937 as the default Mersenne Prime.
  *
@@ -310,11 +314,13 @@ static void gen_rand_array(w128_t *array, int size);
 inline static uint32_t func1(uint32_t x);
 inline static uint32_t func2(uint32_t x);
 static void period_certification(void);
+
 void mt_init(void);
 static inline dw128_t wide_uniform(void);
-
 static inline double uniform_double_PRN(void);
 static inline unsigned long rand_long(unsigned long n);
+static inline unsigned long rand_long64(void);
+static void _report_PRN_total(void);
 #if defined(__SSE2__)
 /** 
  * @file  SFMT-sse2.h
@@ -494,11 +500,30 @@ rand64_t *Rand;
 static __m128d sse2_double_m_one;
 static __m128i sse2_int_set;
 
+#ifdef REPORT_PRNS
+static long __n_cycles__ = 0;
+
+void _report_PRN_total(void) {
+    printf("Used ~%ld 64-bit uniform PRNs.\n", 2*__cycle__*__n_cycles__ + Rand - (rand64_t *)iRandS); /* __cycle__ is in dimensions of 128-bit SIMD */    
+}
+#endif 
+
 void mt_init(void) {
+        /* Avoid initializing twice */
     static int old = 0;
     if (old==1) return;
     old = 1;
+        /* Use Process ID, Parent Process ID, and current time to seed the PRNG */
+#ifdef _WIN32
+    uint32_t init_key[] = {(int)getpid(), (int)time(NULL)}, key_length = 2;
+#else
     uint32_t init_key[] = {(int)getpid(), (int)time(NULL), (int)getppid()}, key_length = 3;
+#endif
+        /* See http://www.math.sci.hiroshima-u.ac.jp/~%20m-mat/MT/SFMT/index.html 
+         * for the remainder. */
+#ifdef REPORT_PRNS
+    atexit(_report_PRN_total);
+#endif
     sse2_double_m_one = _mm_set_pd(-1.0, -1.0);
     sse2_int_set = _mm_set_epi64((__m64)__EXP_SET__, (__m64)__EXP_SET__);
     
@@ -568,9 +593,16 @@ void mt_init(void) {
 	Rand = (rand64_t *)iRandS;
 }
 
+#ifdef REPORT_PRNS
+#define INCREMENT_N_CYCLES() __n_cycles__++;
+#else
+#define INCREMENT_N_CYCLES() ;
+#endif
+
 #define MT_FLUSH() { if (Rand > (rand64_t *)iRend) { \
 gen_rand_array(iRandS,__cycle__); \
 Rand = (rand64_t *) iRandS; \
+INCREMENT_N_CYCLES() \
 }; } 
 
 static inline dw128_t wide_uniform(void) {
@@ -591,7 +623,12 @@ static inline double uniform_double_PRN(void) {
 
 static inline unsigned long rand_long(unsigned long n){
   MT_FLUSH();
- return Rand++->l % n;
+  return Rand++->l % n;
+}
+
+static inline unsigned long rand_long64(void){
+  MT_FLUSH();
+  return Rand++->l;
 }
 
 #endif

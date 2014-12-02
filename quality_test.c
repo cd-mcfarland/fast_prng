@@ -8,8 +8,20 @@
  *
  * */
 
+int factorial(int n) {
+    if (n<=1) return(1);
+    else n=n*factorial(n-1);
+    return(n);
+}
+
+int double_factorial(int n) {
+    if (n<=1) return(1);
+    else n=n*double_factorial(n-2);
+    return(n);
+}
+
 #define TRIALS 			pow(10, 10)
-#define NUM_RAW_MOMENTS	5
+#define NUM_RAW_MOMENTS	6
 #include <inttypes.h>
 #include <stdio.h>
 
@@ -18,23 +30,26 @@
 #define SETUP			exponential_setup()
 #define GENERATOR()		exponential()
 #define NAME			"exponential"
+#define EXPECTED(i)     (factorial(i))
 #endif
 #ifdef NORMAL
 #include "normal.h"
 #define SETUP			normal_setup()
 #define GENERATOR()		normal()
 #define NAME			"standard normal"
+#define EXPECTED(i)     ( (i)%2 == 0 ? double_factorial((i)-1) : 0 )
 #endif
-#ifdef POISSON
-#include "poisson.h"
-#define SETUP			poisson_setup(1)
-#define GENERATOR()		poisson()
-#define NAME			"Poisson"
+#ifdef OLD_NORMAL
+#include "old_normal.h"
+#define SETUP			normal_setup()
+#define GENERATOR()		normal()
+#define NAME			"Old standard normal"
+#define EXPECTED(i)     ( (i)%2 == 0 ? double_factorial((i)-1) : 0 )
 #endif
 
-void main(int argc, char *argv[]){
+int main(int argc, char *argv[]){
 	SETUP;
-	uint64_t i, j;
+	long i, j;
 	double val, X[NUM_RAW_MOMENTS], x_j;
 	for (i=0; i<NUM_RAW_MOMENTS; i++) {
 		X[i] = 0;
@@ -50,6 +65,6 @@ void main(int argc, char *argv[]){
 	//Output
 	printf("Created %ld %s distributed pseudo-random numbers...\n", (long)TRIALS, NAME);
 	for (i=0; i<NUM_RAW_MOMENTS; i++) {
-			printf("X%lu: %f\n", i+1, X[i]/TRIALS);	
+			printf("X%lu: %f (Expected %i)\n", i+1, X[i]/TRIALS, EXPECTED(i+1));	
 	}
 }

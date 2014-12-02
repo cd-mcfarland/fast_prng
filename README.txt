@@ -5,26 +5,28 @@ OVERVIEW
 
 INSTALLATION & USAGE
 
-    Usage in C/C++:
+    C/C++:
 
         Simply include this directory in the path of your compiler. For an 
         example of using the exponential PRNG library (exponential.h), see 
         benchmarks/profile.c. This program is compiled with the command:
 
-            gcc -O3 -DEXPONENTIAL profile.c -lm -o exponential_profiler.out
+            gcc -O2 -DEXPONENTIAL profile.c -lm -o exponential_profiler.out
 
         normal.h contains code for the normal PRNG.
 
-    Usage in Python:
+    Python:
 
-        Install using Pip via https://pypi.python.org/pypi/fast_prng
+        Install using the Python Package Index:
+            $ pip install fast_prng
 
     Usage in Matlab:
 
-        Compile within the Matlab directory using: 
+        Compile within the Matlab directory: 
 
-            mex cdm_exprnd.c
-            mex cdm_randn.c
+            $ mex cdm_exprnd.c
+            $ mex cdm_randn.c
+            $ mex cdm_rand.c
 
         Make sure the compiled functions are within the Matlab Path. Usage of 
         the two functions mimics exprnd and randn.      
@@ -32,7 +34,7 @@ INSTALLATION & USAGE
 CONTACT
 
     Feedback is most appreciated. If you have any questions or suggestions, 
-    please contact me at christopherdmcfarland+fast_prng@gmail.com
+    please contact me at christopherdmcfarland [at] gmail [dot] com
 
 WEBSITE
 
@@ -60,7 +62,8 @@ FILE MANIFEST
     create_layers.py  
 
         Python script that calculates X, L_max, A, f(X), and epsilon (described
-        in the main text). All calculations are done to 128-bit precision, and         then rounded to 64-bit precision to avoid rounding errors.
+        in the main text). All calculations are done to 128-bit precision, and         
+        then rounded to 64-bit precision to avoid rounding errors.
     
     erfl.pyx  
 
@@ -77,13 +80,13 @@ FILE MANIFEST
         profile.c requires a definition at compile-time (EXPONENTIAL, NORMAL, 
         MARSAGLIA, DOORNIK) that chooses the algorithm to profile. E.g. usage:
 
-          $ gcc -O3 -DNORMAL profile.c -lm -o normal.out
-          $ ./normal.out 
-          Created 1000000000 standard normal distributed pseudo-random numbers 
-          with mean -3.18405e-05 in 3.33 seconds.
+          $ gcc -O2 -DNORMAL profile.c -lm -o normal.out
+          $ ./normal.out
+          Created 1000000000 Doornik Standard Normal distributed PRNs with mean 2.39616e-05.
+          Startup time: 55 (us).
+          Mean execution time (per PRN): 7.987 (ns).
 
-        Competing algorithms, modified to accept uniform PRNs from MT19937.h,
-        are also provided. 
+        Competing algorithms are also provided. 
     
     matlab/  
     
