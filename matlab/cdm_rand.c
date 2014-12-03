@@ -29,12 +29,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		return;		
 	}
 	
-	int64_t i, n_dims = nrhs == 1 ? mxGetNumberOfElements(prhs[1]) : nrhs;
+	int64_t i, n_dims = nrhs == 1 ? mxGetNumberOfElements(prhs[0]) : nrhs;
 	mwSize dims[n_dims];
-	double *dims_p;
 
 	if (nrhs == 1) {
-		dims_p = mxGetPr(prhs[0]);
+	    double *dims_p = mxGetPr(prhs[0]);
 		for (i=0; i<n_dims; i++) {
 			dims[i] = (int64_t)(*dims_p++);
 		}
@@ -51,7 +50,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	double *end = element + mxGetNumberOfElements(plhs[0]);
 	
 	while (element < end) {
-		*element = uniform_double_PRN();
-		element++;
+		*element++ = uniform_double_PRN();
 	}
 }

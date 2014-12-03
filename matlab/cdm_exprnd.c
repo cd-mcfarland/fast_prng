@@ -31,7 +31,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		return;		
 	}
 	ASSERT(mxGetNumberOfElements(prhs[0]) == 1, "CDM_ZIGGURAT:exprnd:argtype","mu must be scalar.");
-        double mu = mxGetScalar(prhs[0]);
+    double mu = mxGetScalar(prhs[0]);
 	if (nrhs == 1) {
 		plhs[0] = mxCreateDoubleScalar(mu*exponential());
 		return;
@@ -39,10 +39,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	int64_t i, n_dims = nrhs == 2 ? mxGetNumberOfElements(prhs[1]) : nrhs - 1;
 	mwSize dims[n_dims];
-	double *dims_p;
 
 	if (nrhs == 2) {
-		dims_p = mxGetPr(prhs[1]);
+	    double *dims_p = mxGetPr(prhs[1]);
 		for (i=0; i<n_dims; i++) {
 			dims[i] = (int64_t)(*dims_p++);
 		}

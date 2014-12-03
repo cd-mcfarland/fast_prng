@@ -41,19 +41,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         return;
     }
 
-    int64_t i, n_dims; 
+    int64_t i, n_dims = nrhs == 1 ? mxGetNumberOfElements(prhs[0]) : nrhs; 
     mwSize dims[n_dims];
-    double *dims_p;
 
     if (nrhs == 1) {
-        n_dims = mxGetNumberOfElements(prhs[0]);
-        dims_p = mxGetPr(prhs[0]);
+        double *dims_p = mxGetPr(prhs[0]);
         for (i=0; i<n_dims; i++) {
             dims[i] = (int64_t)(*dims_p++);
         }
     }
     else {
-        n_dims = nrhs;
         for (i=0; i<n_dims; i++) {
             dims[i] = (int64_t)(mxGetScalar(prhs[i]));
         }
@@ -61,8 +58,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     plhs[0] = mxCreateNumericArray(n_dims, dims, mxDOUBLE_CLASS, mxREAL);
     double *element = mxGetPr(plhs[0]);
     double *end = element + mxGetNumberOfElements(plhs[0]);
-    for (; element < end; element++) {
-        *element = normal();
+    while (element < end) {
+        *element++ = normal();
     }
 }
 

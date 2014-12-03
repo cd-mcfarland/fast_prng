@@ -22,11 +22,8 @@ INSTALLATION & USAGE
 
     Usage in Matlab:
 
-        Compile within the Matlab directory: 
-
-            $ mex cdm_exprnd.c
-            $ mex cdm_randn.c
-            $ mex cdm_rand.c
+        Read and execute installation script:
+            $ matlab/install_matlab_functions.sh
 
         Make sure the compiled functions are within the Matlab Path. Usage of 
         the two functions mimics exprnd and randn.      
