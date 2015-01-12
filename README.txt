@@ -1,7 +1,7 @@
 OVERVIEW
 
     This code is the implementation of a exponentially- and normally-distributed
-    PseudoRandom Number Generator described at [http://arxiv.org/abs/1403.6870](http://arxiv.org/abs/1403.6870)
+    PseudoRandom Number Generator described at http://arxiv.org/abs/1403.6870.
 
 INSTALLATION & USAGE
 
