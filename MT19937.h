@@ -1,5 +1,4 @@
-#ifndef __MT19937__
-#define __MT19937__
+#pragma once
 #include <unistd.h>
 #include <time.h>
 #ifndef _XOPEN_SOURCE
@@ -315,7 +314,7 @@ inline static uint32_t func1(uint32_t x);
 inline static uint32_t func2(uint32_t x);
 static void period_certification(void);
 
-void mt_init(void);
+static void mt_init(void);
 static inline dw128_t wide_uniform(void);
 static inline double uniform_double_PRN(void);
 static inline unsigned long rand_long(unsigned long n);
@@ -503,12 +502,12 @@ static __m128i sse2_int_set;
 #ifdef REPORT_PRNS
 static long __n_cycles__ = 0;
 
-void _report_PRN_total(void) {
+static void _report_PRN_total(void) {
     printf("Used ~%ld 64-bit uniform PRNs.\n", 2*__cycle__*__n_cycles__ + Rand - (rand64_t *)iRandS); /* __cycle__ is in dimensions of 128-bit SIMD */    
 }
 #endif 
 
-void mt_init(void) {
+static void mt_init(void) {
         /* Avoid initializing twice */
     static int old = 0;
     if (old==1) return;
@@ -594,7 +593,7 @@ void mt_init(void) {
 }
 
 #ifdef REPORT_PRNS
-#define INCREMENT_N_CYCLES() __n_cycles__++;
+#define INCREMENT_N_CYCLES() (__n_cycles__++);
 #else
 #define INCREMENT_N_CYCLES() ;
 #endif
@@ -630,9 +629,4 @@ static inline unsigned long rand_long64(void){
   MT_FLUSH();
   return Rand++->l;
 }
-
-#endif
-
-
-
 

@@ -10,40 +10,38 @@
  * gcc -O2 -DEXPONENTIAL -o profile.out profile.c 
  *
  * */
-
-
 #include <math.h>
-#define TRIALS 			pow(10, 9)
+#define TRIALS          pow(10,9)
 #include <stdio.h>
 
 #ifdef MT19937
 #include "../MT19937.h"
-#define SETUP           mt_init()
+#define SETUP()         mt_init()
 #define GENERATOR()     uniform_double_PRN()
 #define NAME            "64-bit random unsigned ints (sf-MT)"
 #endif
 #ifdef FLOAT_EXPONENTIAL
 #include "../float_exponential.h"
-#define SETUP			exponential_setup()
+#define SETUP()			exponential_setup()
 #define GENERATOR()		exponential()
 #define NAME			"32-bit exponential"
 #endif
 #ifdef EXPONENTIAL
 #include "../exponential.h"
-#define SETUP			exponential_setup()
+#define SETUP()			exponential_setup()
 #define GENERATOR()		exponential()
 #define NAME			"exponential (Modified Ziggurat)"
 #endif
 #ifdef NORMAL
 #include "../normal.h"
-#define SETUP			normal_setup()
+#define SETUP()			normal_setup()
 #define GENERATOR()		normal()
 #define NAME			"Standard Normal (Modified Ziggurat)"
 #endif
 #ifdef DOORNIK
 #include "doornik_normal.h"
 #define NAME			"Doornik Standard Normal"
-#define SETUP			mt_init(); zigNorInit(ZIGNOR_C, ZIGNOR_R, ZIGNOR_V);
+#define SETUP()			mt_init(); zigNorInit(ZIGNOR_C, ZIGNOR_R, ZIGNOR_V);
 #define GENERATOR()		DRanNormalZig()
 #endif
 #ifdef MARSAGLIA
@@ -55,7 +53,7 @@
 #endif
 static int ke[256];
 static float fe[256], we[256];
-#define SETUP			mt_init(); r4_exp_setup(ke, fe, we)
+#define SETUP()			mt_init(); r4_exp_setup(ke, fe, we);
 static unsigned long int *jsr_unused;
 #define GENERATOR()		r4_exp(jsr_unused, ke, fe, we)
 #endif
@@ -64,7 +62,7 @@ static unsigned long int *jsr_unused;
 #define NAME "Marsaglia without assignment to double precision"
 static int64_t ke[256];
 static double fe[256], we[256];
-#define SETUP			mt_init(); r8_exp_setup(ke, fe, we)
+#define SETUP()			mt_init(); r8_exp_setup(ke, fe, we);
 #define GENERATOR()		r8_exp(ke, fe, we)
 #endif
 #ifdef MARSAGLIA_PAIRED
@@ -72,17 +70,18 @@ static double fe[256], we[256];
 #define NAME "Marsaglia without assignment to double precision with paired lookup values"
 static ke_we_t ke_we[256];
 static double fe[256];
-#define SETUP			mt_init(); r8_exp_setup(ke_we, fe)
+#define SETUP()			mt_init(); r8_exp_setup(ke_we, fe);
 #define GENERATOR()		r8_exp(ke_we, fe)
 #endif
 
 int main(int argc, char *argv[]){
 	double x = 0;
 	double start_time = (double)clock();
-	SETUP;
-	int i;
+	SETUP();
+	long i;
     double execution_start_time = (double)clock();
-	for (i=0; i<TRIALS; i++) x += (double)GENERATOR();
+#pragma omp parallel for reduction(+:x) private(i)
+    for (i=0; i<TRIALS; ++i) x += (double)GENERATOR();
 	double end_time = (double)clock();
 	//Output
 	printf("Created %ld %s distributed PRNs with mean %g.\n", (long)TRIALS, NAME, x/TRIALS);

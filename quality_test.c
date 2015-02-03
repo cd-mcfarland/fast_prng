@@ -20,10 +20,11 @@ int double_factorial(int n) {
     return(n);
 }
 
-#define TRIALS 			pow(10, 10)
+#define TRIALS 			pow(10, 12)
 #define NUM_RAW_MOMENTS	6
 #include <inttypes.h>
 #include <stdio.h>
+#include "debug.h"
 
 #ifdef EXPONENTIAL
 #include "exponential.h"

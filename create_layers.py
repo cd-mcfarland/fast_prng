@@ -4,40 +4,56 @@
 # Values are calculated to longdouble precision and then rounded to double precision.
 # Tables are output into a C header file.
 
-#TYPE = 'EXPONENTIAL' 
-TYPE = 'NORMAL'
+TYPE = 'EXPONENTIAL' 
+#TYPE = 'NORMAL'
+size = 256
 
 import numpy as np
-from numpy import abs
-# redefine Transcendental functions for proper precision
 import pyximport; pyximport.install()
+
+# redefine Transcendental functions for proper precision
 from erfl import erf
 exp = lambda x: np.exp(x, dtype=np.longdouble)
 sqrt = lambda x: np.sqrt(x, dtype=np.longdouble)
 power = lambda x, y: np.power(x, y, dtype=np.longdouble)
 
 oneHalf = 1/np.longdouble(2)
-eps = 10*np.finfo(np.double).eps
-size = 256
 
 def check_equal(x,y): 
     """check_equal(x, y) -> raise Assertion Error if values in x & y differ by more than double precision"""
-    assert (np.abs(x - y,dtype=np.longdouble) < eps).all(), "{:}  {:}".format(x,y)
+    assert (np.abs(x - y,dtype=np.longdouble) < np.finfo(np.double).eps).all(), "{:}  {:}".format(x,y)
 
-def fsolve(f, a, b, xtol=1e-18):
-    """ fsolve(f, fprime, x0, xtol=1e-18) -> x: f(x) = 0; implemented to longdouble precision
+def fsolve(f, a, b, xtol=1e-19, iterations=100, start_safe=False):
+    """ fsolve(f, a, b xtol=1e-19) -> x: f(x) = 0; implemented to longdouble precision
         
-    Uses Secant Method, requires a <= x < b there are no safeguards with this implementation.
+    Tries Secant, then uses Bisection Method to find root.
+    Requires a <= x < b.
 """
     assert a < b, "a must be lower bound, b must be higher bound"
     x = [b, a]
     F = list(map(f, x))
-    for n in range(2, 100):
-        x.append(x[n-1] - F[n-1]*(x[n-1] - x[n-2])/(F[n-1] - F[n-2]))
-        if abs(x[n] - x[n-1]) < xtol: 
-            return x[n]
-        F.append(f(x[n]))
-    return 0
+    if np.sign(F[0]) == np.sign(F[1]): 
+        raise ValueError("there is no root within [a, b]")
+
+    if not start_safe:
+        for n in range(2, iterations):
+            x.append(x[n-1] - F[n-1]*(x[n-1] - x[n-2])/(F[n-1] - F[n-2]))
+            if np.abs(x[n] - x[n-1]) < xtol: 
+                return x[n]
+            F.append(f(x[n]))
+
+    length = x[0] - x[1]
+    iterations = int(np.ceil(np.log2(length/xtol)))
+    for iteration in range(iterations): 
+        c = x[1] + length
+        F_c = f(c)
+        if F_c == 0.:
+            break
+        i = int(np.sign(F_c) == np.sign(F[1]))
+        x[i] = c
+        F[i] = F_c
+        length /= 2
+    return c
 
 def realign(pmf):
     """realign(pmf) -> X, A: X & A allow random sampling from pmf in O(1) time.
@@ -94,85 +110,128 @@ if TYPE == 'EXPONENTIAL':
     f = lambda x: exp(-x)
     CDF = lambda x: 1 - f(x)
 elif TYPE == 'NORMAL':
-    f = lambda x: exp(-x*x*oneHalf)                # This function is more efficient to calculate than the normalized Gaussian Distribution
-    volume = sqrt(2*np.pi)/np.longdouble(2*size)
-    CDF = np.vectorize( lambda x: sqrt(np.pi/2)*erf(x/sqrt(2)) )
+    f = lambda x: exp(-oneHalf*x*x)                
+    pi = np.longdouble(0)
+    pi_str = '31415926535897932384626433832795'
+    for i, digit in enumerate(pi_str): 
+        pi += np.longdouble(digit)*power(10, -i)
 
-X_0_estimate = 10 if TYPE == 'EXPONENTIAL' else 4
-X = [fsolve(lambda x: x*f(x) - volume, 1, X_0_estimate)]
-Y = [f(X[0])]
+    volume = sqrt(2*pi)/np.longdouble(2*size)
+    alpha = sqrt(oneHalf*pi)
+    CDF = np.vectorize( lambda x: alpha*erf(sqrt(oneHalf)*x) )
 
-while X[-1] != 0:
-    X.append(fsolve(lambda x: x*(f(x) - Y[-1]) - volume, X[-1]/2, X[-1]))
-    Y.append(f(X[-1]))
+def generate_X_i(vol=volume, last_Y_i=0):
+    lower_bound = 1
+    upper_bound = 10 if TYPE == 'EXPONENTIAL' else 4
+    while lower_bound > vol:        # Obtaining another layer is clearly hopeless after this point
+    # There are two solutions for X_i (a tall-skinny box and a long-flat box). We want the latter, 
+    # so lower_bound is reduced gradually to avoid solving for the tall-skinny box. 
+        try:
+            X_i = fsolve(lambda x: x*(f(x) - last_Y_i) - vol, lower_bound, upper_bound)
+            yield X_i
+            last_Y_i = f(X_i)
+            lower_bound = 0.9*X_i   
+            upper_bound = X_i       
+        except ValueError:
+            lower_bound *= 0.9
 
-X = np.array(X)
+X = np.array(list(generate_X_i(vol=volume)) + [0])
+Y = np.vectorize(f)(X)
+
 dX = -np.diff(X)                            # dx_i = x_i-1 - x_i; x_-1 = x: f(x) = 0 = inf
-Y = np.array(Y)
 dY = np.diff(Y)
 check_equal(X[1:-1]*dY[:-1], volume)
 
 V = -np.diff(CDF(np.r_[np.inf, X]))
 V[1:] -= Y[:-1]*dX
-V = np.r_[V, np.zeros(size - len(X-1))]
 
-bins = len(X) - 1
+V_tail = V[0]/V.sum()
+print("Fraction of remainder in tail: {:.4%}".format(V_tail))
 
-check_equal(size - bins, V.sum()/volume) 
+V = np.r_[V, np.zeros(size - len(V))]
 
+layers = len(X) - 1
+check_equal(size - layers, V.sum()/volume) 
+
+
+print("Mean V: {:g}".format((np.arange(len(V))*V).sum()/V.sum())) 
 V /= V.mean()
 
 pmf, Map = realign(V)
 
-max_uint64 = power(2, 64)
-max_int64 = power(2, 64 - 1)
-max_uint56 = power(2, 56)
+max_int64 = 0x7fffffffffffffff 
+max_uint64 = 0xffffffffffffffff
 
-ipmf = np.uint64(pmf*np.longdouble(max_uint56))    # WDS sampler uses first 8 bits of 64-bit random uint to sample an 8-bit integer
-ipmf[pmf >= 1] = max_uint56
+print("static double X_0 = {:};".format(X[0]))
 
+ipmf = np.int64(pmf*max_uint64 - max_int64)    # WDS sampler uses first 8 bits of 64-bit random uint to sample an 8-bit integer
+ipmf[pmf >= 1] = max_int64 
 
+crap ="""
+dY_i = Y_i+1 - Y_i
+dX_i = X_i - X_i+1
+-m_i = Y_i - Y_i+1 / X_i - X_i+1
+e_i = -m_i-1(x - X_i) + F_i - e^-x 
+0 =  -m_i-1 + e^-x
+x_max = -log(m_i-1)
+y_max = Y_i(x_max) - f(x_max)
+de_max = y_max / dY
+de_max = (+m_i-1*(+log(m_i-1) + X_i) + F_i - e^log(m_i-1) / dY
+de_max = { m_i-1 * (log[m_i-1] + X_i) + F_i - m_i-1 } /dY
+"""
 m = dY/dX
 if TYPE == 'EXPONENTIAL':
-    assert (m > Y[:-1]).all(),    'tangent line must be steeper than initial derivative'
-    assert (m < Y[1: ]).all(),  'tangent line must be shallower than final derivative'
-    E = (Y[1:]-m*(1-X[1:]-np.log(m)))/dY
-    print('__EXP_MINIMAL_TEST__', np.uint64(E.max()*max_uint64))
+    assert (m > Y[:-1]).all(), 'tangent line must be steeper than initial derivative'
+    assert (m < Y[1: ]).all(), 'tangent line must be shallower than final derivative'
+    epsilon = (Y[1:]-m*(1-X[1:]-np.log(m)))
+    
+    #epsilon = m*(log(m) + X[1:]) + Y[1:] - m
+    E = epsilon/dY
+    print('static int64_t iE_max = {:};'.format(np.int64(E[3:].max()*max_int64)))
     X /= max_int64 
     Y /= max_int64
 elif TYPE == 'NORMAL':
     print('__NORM_TAIL_BEGIN__', X[0])
-    i = 0
-    while X[i] > 1:
-        i += 1
-    assert X[i+1] < 1, "Inflection point lies on boundary between two layers" 
-    print('static uint8_t i = ', i+1)
+    inflection_point = 1
+    i_inflection = (X > inflection_point).sum()
+    assert X[i_inflection + 1] < inflection_point, "Inflection point lies exactly on boundary between two layers" 
+    print('static uint_fast8_t i_inflection = ', i_inflection+1)
+
+    E = zeros_like(X)
+  
+    for i in range(1, len(X)):
+        delta_i = lambda x: x*f(x) - m[i-1]
+        X_max = fsolve(delta_i, X[i], X[i-1] if i != i_inflection else inflection_point) # X_max[i_inflection] should be max_x f(x) - Y_i_inflection(x) (not max_x abs(f(x) - Y_i_inflection(x)) ), because we want to sample points in the concave region.
+        assert X_max != 0, "Failed to find epsion_i for i = {:}".format(i)
+        Y_i = lambda x: Y[i] - m[i-1]*(x - X[i])
+        E[i] = np.abs( Y_i(X_max) - f(X_max) ) / dY[i-1] 
+
+    iE = np.int64(ceil(E*max_int64))
+    print('static int64_t iE_max = {:}, iE_min = {:};'.format(iE[i_inflection:].max(), iE[:i_inflection].max()))
+
     X /= max_int64 
     Y /= max_int64
 
 ######### OUTPUT
 output = open(TYPE.lower() + "_layers.h", 'w')
-
 short_type = 'exp' if TYPE == 'EXPONENTIAL' else 'norm' 
+SHORT_TYPE = short_type.upper()
 
-BINS = "__{:}_BINS__".format(short_type.upper())
-SIZE = "__{:}_SIZE__".format(short_type.upper())
-
-output.write("""#define\t{BINS}\t{bins}
-#define\t{SIZE}\t{size}
+output.write("""
+#define  __{SHORT_TYPE}_LAYERS__  {layers}
 """.format(**locals()))
 
-def writeDoubleArray(Str):
-    assert len(eval(Str)) == bins + 1, 'improper array for this output' 
-    output.write('static double __{short_type}_{Str}__[{BINS}+1] = {{ '.format(Str=Str, **globals()) + ', '.join(map(str, eval(Str))) + '};\n\n' )
+def writeArray(name, data, dtype, prefix=short_type):
+    length_str = str(len(data))
+    data_str = ', '.join(map(str,data))
+    output.write('static {dtype} __{prefix}_{name}__[{length_str}] = {{ {data_str} }};\n\n'.format(**locals()))
 
-for double_array in ['X', 'Y']:
-    writeDoubleArray(double_array)
+Arrays = dict(X=X, Y=Y, map=np.int64(Map), ipmf=ipmf)
+if TYPE == 'NORMAL':
+    Arrays['iE'] = iE
 
-output.write(
-"""static uint8_t __{short_type}_map__[{SIZE}] = {{ {:} }};
+for name, data in Arrays.items():
+    dtype = 'double' if data.dtype == np.float128 else (str(data.dtype) + '_t')
+    writeArray(name, data, dtype)
 
-static {:}_t __{short_type}_ipmf__[{SIZE}] = {{ {:}u }};
-""".format(', '.join(map(str, Map)), str(ipmf.dtype), 'u, '.join(map(str, ipmf)), **locals()))
 output.close()
-

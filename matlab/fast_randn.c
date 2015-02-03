@@ -26,40 +26,20 @@
  *         Sigma = [1 .5; .5 2]; R = chol(Sigma);
  *         z = repmat(mu,100,1) + randn(100,2)*R; 	*/
 
-#include <inttypes.h>
-#include "mex.h"
-#include "matrix.h"
+#include "./shared.h"
 #include "../normal.h"
 
-#define ASSERT(a, b, c) { if (!(a)) mexErrMsgIdAndTxt(b, c); }
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-	ASSERT(nlhs == 1, "cdm_randn:maxlhs", "One output required.");
     normal_setup();
     if (nrhs == 0) {
         plhs[0] = mxCreateDoubleScalar(normal());
         return;
     }
-
-    int64_t i, n_dims = nrhs == 1 ? mxGetNumberOfElements(prhs[0]) : nrhs; 
-    mwSize dims[n_dims];
-
-    if (nrhs == 1) {
-        double *dims_p = mxGetPr(prhs[0]);
-        for (i=0; i<n_dims; i++) {
-            dims[i] = (int64_t)(*dims_p++);
-        }
-    }
-    else {
-        for (i=0; i<n_dims; i++) {
-            dims[i] = (int64_t)(mxGetScalar(prhs[i]));
-        }
-    }
-    plhs[0] = mxCreateNumericArray(n_dims, dims, mxDOUBLE_CLASS, mxREAL);
+	plhs[0] = createOutputArray(nrhs, prhs);
+    
     double *element = mxGetPr(plhs[0]);
     double *end = element + mxGetNumberOfElements(plhs[0]);
     while (element < end) {
         *element++ = normal();
     }
 }
-

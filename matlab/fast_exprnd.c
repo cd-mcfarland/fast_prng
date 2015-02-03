@@ -1,4 +1,3 @@
-
 /* 
  * R = exprnd(mu)
  * R = exprnd(mu,m,n,...)
@@ -16,58 +15,35 @@
  *
  * */
 
-#include <inttypes.h>
-#include "mex.h"
-#include "matrix.h"
+#include "./shared.h"
 #include "../exponential.h"
 
-#define ASSERT(a, b, c) { if (!(a)) mexErrMsgIdAndTxt(b, c); }
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-	ASSERT(nlhs == 1, "CDM_ZIGGURAT:exprnd:maxlhs", "One output required.");
 	exponential_setup();
 	if (nrhs == 0) {
 		plhs[0] = mxCreateDoubleScalar(exponential());
 		return;		
 	}
-	ASSERT(mxGetNumberOfElements(prhs[0]) == 1, "CDM_ZIGGURAT:exprnd:argtype","mu must be scalar.");
+	if (mxGetNumberOfElements(prhs[0]) != 1)
+        mexErrMsgIdAndTxt("CDM_ZIGGURAT:exprnd:argtype", "mu must be scalar.");
+    
     double mu = mxGetScalar(prhs[0]);
 	if (nrhs == 1) {
 		plhs[0] = mxCreateDoubleScalar(mu*exponential());
 		return;
 	}
-	
-	int64_t i, n_dims = nrhs == 2 ? mxGetNumberOfElements(prhs[1]) : nrhs - 1;
-	mwSize dims[n_dims];
 
-	if (nrhs == 2) {
-	    double *dims_p = mxGetPr(prhs[1]);
-		for (i=0; i<n_dims; i++) {
-			dims[i] = (int64_t)(*dims_p++);
-		}
-	}
-	else {
-		for (i=0; i<n_dims; i++) {
-			dims[i] = (int64_t)(mxGetScalar(prhs[i+1]));
-		}
-	}
-
-	plhs[0] = mxCreateNumericArray(n_dims, dims, mxDOUBLE_CLASS, mxREAL);
+	plhs[0] = createOutputArray(nrhs - 1, prhs + 1);
 
 	double *element = mxGetPr(plhs[0]);
 	double *end = element + mxGetNumberOfElements(plhs[0]);
 	
 	if (mu == 1) {
-		while (element < end) {
-			*element = exponential();
-			element++;
-		}
+		while (element < end) 
+            *element++ = exponential();
 	}
 	else { 
-		while (element < end) {
-			*element = mu*exponential();
-			element++;
-		}
+		while (element < end) 
+            *element++ = mu*exponential();
 	}
-
 }

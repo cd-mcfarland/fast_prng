@@ -1,16 +1,23 @@
 #!/bin/sh
 
-# This script compiles and copies all PRNGs into your MATLAB path. It compiles 
-# using mex, which must be installed and paired with a compatible C compiler. 
-# You must also ensure that $USERPATH is a searched directory of your MATLAB
-# installation. 
+:<<'COMMENT'
+
+This script compiles and copies all PRNGs into your MATLAB path. It compiles 
+via mex, which must be installed and paired with a compatible C compiler. Use: 
+
+ $ mex -setup
+
+to see you current mex setup. Finally, before running this script ensure that 
+$USERPATH is a searched directory of your MATLAB installation. 
+
+COMMENT
 
 USERPATH="$HOME/Documents/MATLAB/"   
 
-for file in "cdm_rand" "cdm_exprnd" "cdm_randn"
+set -e
+for file in "fast_rand" "fast_exprnd" "fast_randn"
 do
     echo "Compiling $file ...";
-    mex $file.c;
-    cp $file.mex* $USERPATH;
+    mex -outdir $USERPATH $file.c;
 done
 
