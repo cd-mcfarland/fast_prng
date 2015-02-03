@@ -54,34 +54,34 @@ Modified code of Super-Fast Mersene Twister used for uniform PRNG
 supported older architectures was removed. Functions for seeding the PRNG and 
 accessing PRNs without unnecessary bounds-checking were added.
     
-* exponential.h  
+### exponential.h  
     
 Exponential PRNG to be used with C/C++ code.         
 
-* normal.h  
+### normal.h  
 
 Normal PRNG to be used with C/C++ code. 
 
-* shared.h
+### shared.h
 
 Shared constants and MACROS used by exponential.h and normal.h.
 
-* create_layers.py  
+### create_layers.py  
 
 Python script that calculates X, L_max, A, f(X), and epsilon (described in the 
 main text). All calculations are done to 128-bit precision, and then rounded to 
 64-bit precision to avoid rounding errors.
     
-* erfl.pyx  
+### erfl.pyx  
 
 128-bit precision Error function for create_layers.py
     
-* quality_test.c 
+### quality_test.c 
 
 Returns raw moments of a set of PRNs. An example of usage is described in the 
 Appendix of the main text.
     
-* benchmarks/  
+### benchmarks/  
     
 A collection profiling scripts. profile.c requires a definition at compile-time 
 (e.g. EXPONENTIAL, NORMAL) that selects the algorithm to profile. For example:
@@ -94,6 +94,6 @@ A collection profiling scripts. profile.c requires a definition at compile-time
 
 Competing algorithms are also provided. 
     
-* matlab/  
+### matlab/  
     
 Extensions for Matlab/Octave.
