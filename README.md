@@ -88,7 +88,7 @@ A collection profiling scripts. profile.c requires a definition at compile-time
 
     $ gcc -O2 -DNORMAL profile.c -lm -o normal.out
     $ ./normal.out
-    Created 1000000000 Doornik Standard Normal distributed PRNs with mean 2.39616e-05.
+    Created 1000000000 Standard Normal (Modified Ziggurat) distributed PRNs with mean 2.39616e-05.
     Startup time: 55 (us).
     Mean execution time (per PRN): 7.987 (ns).
 

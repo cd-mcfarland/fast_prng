@@ -42,7 +42,7 @@ static inline double normal(void) {
     static int64_t max_iE = 2269182951627975918, min_iE =  760463704284035181; /* Largest deviations of f(x) from y_i */
 	static double X_0 = 3.6360066255;                   /* Beginning of tail */
     static uint_fast8_t j_inflection = 205;
-    double x, y, *X_j = X + j;
+    double x, *X_j = X + j;
         /* Four kinds of overhangs: 
          *  j = 0                :  Sample from tail
          *  0 < j < j_inflection :  Overhang is concave; only sample from Lower-Left triangle
@@ -56,7 +56,7 @@ static inline double normal(void) {
             x = _FAST_PRNG_SAMPLE_X(X_j, U_x);
             MT_FLUSH();
             U_diff = RANDOM_INT63() - U_x;
-            if (U_diff > 0) break;
+            if (U_diff > 0) break;      
             if (U_diff < -max_iE) continue;
             if ( _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_x + U_diff)) < exp(-0.5*x*x) ) break;
             U_x = RANDOM_INT63();
@@ -79,13 +79,12 @@ static inline double normal(void) {
                     U_x -= U_diff; 
                 }
                 x = _FAST_PRNG_SAMPLE_X(X_j, U_x);
-                y = _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_x + U_diff));
                 if (U_diff > min_iE) break;
                 if ( _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_x + U_diff)) < exp(-0.5*x*x) ) break;
                 U_x = RANDOM_INT63();
             }
 #endif
-        } else {                
+        } else {                        /* Inflection point or simple overhangs */                
             for (;;) {
                 x = _FAST_PRNG_SAMPLE_X(X_j, U_x);
                 MT_FLUSH();
