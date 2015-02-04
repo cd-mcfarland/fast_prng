@@ -8,15 +8,17 @@ from timeit import repeat
 
 # Input variables (review before running)
 
-#CPU_string = 'Intel(R) Core(TM) i5-4258U CPU @ 2.40GHz'    # Macbook
-CPU_string = 'Intel(R) Core(TM) i7-3770K CPU @ 3.50GHz'     # Proteome
+CPU_string = 'Intel(R) Core(TM) i5-4258U CPU @ 2.40GHz'    # Macbook
+#CPU_string = 'Intel(R) Core(TM) i7-3770K CPU @ 3.50GHz'     # Proteome
 #CPU_string = 'Intel(R) Xeon(R) E5620 @ 2.40GHz'         # Rosenberg Mac
+#CPU_string = 'Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz'         # quill
 #CPU_string = 'Intel(R) Core(TM) i5-M540 @ 2.53GHz'      # Jettabook
 
 
 #CPU_string = 'Intel(R) Core(TM) i7-3770K CPU @ 3.50GHz'     # From /proc/cpuinfo or similar
-#compiler = "gcc-4.9"                                        # or 'clang', etc
+compiler = "gcc-4.9"                                        # or 'clang', etc
 #compiler = "clang"                                        # or 'clang', etc
+#compiler = "gcc-4.8"
 #compiler = "gcc"
 compiler = "gcc-4.8"
 optimization_level = "-O2"                                  
