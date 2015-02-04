@@ -318,8 +318,8 @@ static void mt_init(void);
 static inline dw128_t wide_uniform(void);
 static inline double uniform_double_PRN(void);
 static inline unsigned long rand_long(unsigned long n);
-static inline unsigned long rand_long64(void);
-static void _report_PRN_total(void);
+static inline unsigned long rand_long64(void); 
+void _report_PRN_total(void);
 #if defined(__SSE2__)
 /** 
  * @file  SFMT-sse2.h
