@@ -57,21 +57,11 @@ static float fe[256], we[256];
 static unsigned long int *jsr_unused;
 #define GENERATOR()		r4_exp(jsr_unused, ke, fe, we)
 #endif
-#ifdef MARSAGLIA_DOUBLE
+#ifdef DOUBLE_MARSAGLIA
 #include "double_marsaglia.h"
-#define NAME "Marsaglia without assignment to double precision"
-static int64_t ke[256];
-static double fe[256], we[256];
-#define SETUP()			mt_init(); r8_exp_setup(ke, fe, we);
-#define GENERATOR()		r8_exp(ke, fe, we)
-#endif
-#ifdef MARSAGLIA_PAIRED
-#include "paired_marsaglia.h"
-#define NAME "Marsaglia without assignment to double precision with paired lookup values"
-static ke_we_t ke_we[256];
-static double fe[256];
-#define SETUP()			mt_init(); r8_exp_setup(ke_we, fe);
-#define GENERATOR()		r8_exp(ke_we, fe)
+#define NAME "Double precision Marsaglia (additional options)"
+#define SETUP()			mt_init(); r8_exp_setup();
+#define GENERATOR()		r8_exp()
 #endif
 
 int main(int argc, char *argv[]){

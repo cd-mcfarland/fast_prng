@@ -16,11 +16,10 @@ CPU_string = 'Intel(R) Core(TM) i5-4258U CPU @ 2.40GHz'    # Macbook
 
 
 #CPU_string = 'Intel(R) Core(TM) i7-3770K CPU @ 3.50GHz'     # From /proc/cpuinfo or similar
-compiler = "gcc-4.9"                                        # or 'clang', etc
-#compiler = "clang"                                        # or 'clang', etc
+#compiler = "gcc-4.9"                                        # or 'clang', etc
+compiler = "clang"                                        # or 'clang', etc
 #compiler = "gcc-4.8"
 #compiler = "gcc"
-compiler = "gcc-4.8"
 optimization_level = "-O2"                                  
 N_trials = 5
 
@@ -32,10 +31,10 @@ compiled_program = 'test.out'
 #Routine 
 column_name = '{CPU_string} ({compiler} on {platform})'.format(**locals())
 tests = read_csv(csv_file, index_col=0)
-tests[column_name] = nan                                    # Delete any previous profiling
+#tests[column_name] = nan                                    # Delete any previous profiling
 
 for name, program in tests['Program'].items():
-    if 'MATLAB' in name:                                    # MATLAB runtimes are profiled by hand
+    if 'MATLAB' in name or "MARSAGLIA" not in program:                                    # MATLAB runtimes are profiled by hand
         continue
     if ' ' in program:
         program, extra_def = program.split()                # Extract program (for profile.c) and extra definitions
@@ -54,11 +53,12 @@ for name, program in tests['Program'].items():
             startup_time[trial]   = float(out_lines[1].split()[2])
             execution_time[trial] = float(out_lines[2].split()[5])
     else:                                                   # Python profiling
+        continue
         startup_time = nan
         execution_time = repeat(stmt=program+'(size={:})'.format(1000000000), setup='import numpy' if 'numpy' in program else 'import fast_prng', number=1, repeat=N_trials)
 
     print('{name}: {:g} (median us, startup); {:g} (median ns, per PRN)'.format(median(startup_time), median(execution_time), **locals()))
-    tests[column_name][name] = median(execution_time)
+    tests.loc[name, column_name] = median(execution_time)
 
 tests.to_csv(csv_file)
 

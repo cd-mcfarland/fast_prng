@@ -1,11 +1,11 @@
 
-N_trials = 5;
+N_trials = 30;
 N_variates = [1, 100000000];
 
 functions = {'exprnd', 'randn', 'rand'};
 
 for i = 1:size(functions, 2)
-    temp1 = str2func(['cdm_', functions{i}]);
+    temp1 = str2func(['fast_', functions{i}]);
     temp2 = str2func(functions{i});
 
     if strcmp(functions{i}, 'exprnd')

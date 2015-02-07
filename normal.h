@@ -61,7 +61,7 @@ static inline double normal(void) {
             if ( _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_x + U_diff)) < exp(-0.5*x*x) ) break;
             U_x = RANDOM_INT63();
             }
-    } else {
+    } else if (j == 0) {                /* Tail */
 #endif
         if (j == 0) {                   /* Tail */
             do {

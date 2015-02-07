@@ -14,7 +14,7 @@ is the correct path.
 COMMENT
 
 USERPATH="$HOME/Documents/MATLAB/"   
-MEXCOMMAND="$HOME/quill_matlab/bin/mex"
+MEXCOMMAND="mex" 
 
 set -e
 for file in "fast_rand" "fast_exprnd" "fast_randn"
