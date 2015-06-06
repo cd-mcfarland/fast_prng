@@ -1,4 +1,4 @@
-# Fast PRNG: an Exponential and Normal PseudoRandom Number Generator
+# Fast PRNG: an Exponentially- and Normally-distributed PseudoRandom Number Generator
 
 ## OVERVIEW
 -----------
