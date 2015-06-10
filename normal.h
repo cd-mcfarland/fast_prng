@@ -35,8 +35,8 @@ static inline double normal(void) {
     MT_FLUSH();
 	uint_fast8_t i = Rand->l & 0xff;                    /* Floating-point multiplication squashes these bits, so they can be used to sample i */
 	if (i < i_max) return X[i]*Rand++->sl;              /* Early exit */
-    uint64_t U_x = RANDOM_INT63();
-    double sign_bit = U_x & 0x100 ? 1. : -1.;           /* Another squashed, recyclable bit */
+    uint64_t U_1 = RANDOM_INT63();
+    double sign_bit = U_1 & 0x100 ? 1. : -1.;           /* Another squashed, recyclable bit */
 	uint_fast8_t j = _norm_sample_A();
     int64_t U_diff;
     static int64_t max_iE = 2269182951627975918, min_iE =  760463704284035181; /* Largest deviations of f(x) from y_i */
@@ -53,47 +53,44 @@ static inline double normal(void) {
 #ifndef SIMPLE_OVERHANGS
     if (j > j_inflection) {             /* Convex overhang */
         for (;;) {
-            x = _FAST_PRNG_SAMPLE_X(X_j, U_x);
+            x = _FAST_PRNG_SAMPLE_X(X_j, U_1);
             MT_FLUSH();
-            U_diff = RANDOM_INT63() - U_x;
-            if (U_diff > 0) break;      
+            U_diff = RANDOM_INT63() - U_1;
+            if (U_diff > min_iE) break;      
             if (U_diff < -max_iE) continue;
-            if ( _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_x + U_diff)) < exp(-0.5*x*x) ) break;
-            U_x = RANDOM_INT63();
+            if ( _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_1 + U_diff)) < exp(-0.5*x*x) ) break;
+            U_1 = RANDOM_INT63();
             }
     } else if (j == 0) {                /* Tail */
 #endif
-        if (j == 0) {                   /* Tail */
-            do {
-                x = pow(X_0, -1)*exponential();
-		    }
-            while (exponential() < 0.5*x*x);
-            x += X_0;
-#ifndef SIMPLE_OVERHANGS
-        } else if (j < j_inflection) {  /* Concave overhang */ 
-            for (;;) {
-                MT_FLUSH();
-                U_diff = RANDOM_INT63() - U_x;
-                if (U_diff < 0) {
-                    U_diff = -U_diff;
-                    U_x -= U_diff; 
-                }
-                x = _FAST_PRNG_SAMPLE_X(X_j, U_x);
-                if (U_diff > min_iE) break;
-                if ( _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_x + U_diff)) < exp(-0.5*x*x) ) break;
-                U_x = RANDOM_INT63();
-            }
+#ifdef SIMPLE_OVERHANGS
+    if (j == 0) {                       /* Tail (excluding Convex overhang conditional) */
 #endif
-        } else {                        /* Inflection point or simple overhangs */                
-            for (;;) {
-                x = _FAST_PRNG_SAMPLE_X(X_j, U_x);
-                MT_FLUSH();
-                if ( _FAST_PRNG_SAMPLE_Y(j, RANDOM_INT63()) < exp(-0.5*x*x) ) break;
-                U_x = RANDOM_INT63();
+        do x = pow(X_0, -1)*exponential();
+        while (exponential() < 0.5*x*x);
+        x += X_0;
+#ifndef SIMPLE_OVERHANGS
+    } else if (j < j_inflection) {  /* Concave overhang */ 
+        for (;;) {
+            MT_FLUSH();
+            U_diff = RANDOM_INT63() - U_1;
+            if (U_diff < 0) {
+                U_diff = -U_diff;
+                U_1 -= U_diff; 
             }
+            x = _FAST_PRNG_SAMPLE_X(X_j, U_1);
+            if (U_diff > min_iE) break;
+            if ( _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_1 + U_diff)) < exp(-0.5*x*x) ) break;
+            U_1 = RANDOM_INT63();
+        } 
+#endif
+    } else {                        /* Inflection point or simple overhangs */                
+        for (;;) {
+            x = _FAST_PRNG_SAMPLE_X(X_j, U_1);
+            MT_FLUSH();
+            if ( _FAST_PRNG_SAMPLE_Y(j, RANDOM_INT63()) < exp(-0.5*x*x) ) break;
+            U_1 = RANDOM_INT63();
         }
-#ifndef SIMPLE_OVERHANGS
     }
-#endif
     return sign_bit*x; 
 }
