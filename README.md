@@ -11,8 +11,8 @@ PseudoRandom Number Generator described at [http://arxiv.org/abs/1403.6870].
 
 Source code and functions are found in exponential.h and normal.h. Simply 
 include this directory in the path of your compiler. For an example of usage, 
-see benchmarks/profile.c, which to test the exponential PRNG, can be compiled 
-with the command:
+see benchmarks/profile.c, which profiles the exponential PRNG with the 
+compilation command:
 
     $ gcc -O2 -DEXPONENTIAL profile.c -lm -o exponential_profiler.out
 
