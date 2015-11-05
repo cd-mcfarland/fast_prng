@@ -18,7 +18,7 @@ compilation command:
 
 ### Python:
 
-Use the Python Package Index:
+Install via the [Python Package Index](https://pypi.python.org/pypi):
             
     $ pip install fast_prng
 
