@@ -69,12 +69,12 @@ Shared constants and MACROS used by exponential.h and normal.h.
 ### create_layers.py  
 
 Python script that calculates X, L_max, A, f(X), and epsilon (described in the 
-main text). All calculations are done to 128-bit precision, and then rounded to 
-64-bit precision to avoid rounding errors.
+main text). All calculations are done to long double precision, and then rounded 
+to double precision.
     
 ### erfl.pyx  
 
-128-bit precision Error function for create_layers.py
+long double precision Error function for create_layers.py
     
 ### quality_test.c 
 
