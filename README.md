@@ -26,13 +26,15 @@ The module's functions mimic numpy.random functions of the same name.
 
 ### Matlab:
 
-Ensure that the mex command is in the PATH, and then execute:
+Install via the command:
             
     $ matlab/install_matlab_functions.sh
 
 This script will install to the default MATLAB userpath, unless $USERPATH is 
 redefined. The installed functions: fast_exprnd, fast_randn, and fast_rand
-behave identically to the native MATLAB functions that share the same name.  
+behave identically to the native MATLAB functions that share the same name. 
+Ensure that the mex compiler is configured and accessibles in the system PATH, 
+or specify the PATH in the install_matlab_functions.sh script. 
 
 ##CONTACT
 ---------
@@ -74,7 +76,7 @@ to double precision.
     
 ### erfl.pyx  
 
-long double precision Error function for create_layers.py
+Long double precision Error function for create_layers.py
     
 ### quality_test.c 
 
@@ -83,7 +85,7 @@ Appendix of the main text.
     
 ### benchmarks/  
     
-A collection profiling scripts. profile.c requires a definition at compile-time 
+A collection of profiling scripts. profile.c requires a definition at compile-time 
 (e.g. EXPONENTIAL, NORMAL) that selects the algorithm to profile. For example:
 
     $ gcc -O2 -DNORMAL profile.c -lm -o normal.out
