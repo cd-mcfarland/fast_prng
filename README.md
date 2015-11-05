@@ -2,8 +2,9 @@
 
 ## OVERVIEW
 -----------
-This code is the implementation of a exponentially- and normally-distributed
-PseudoRandom Number Generator described at [http://arxiv.org/abs/1403.6870].
+This code is the implementation of [A modified ziggurat algorithm for generating 
+exponentially and normally distributed pseudorandom numbers]
+(http://www.tandfonline.com/doi/abs/10.1080/00949655.2015.1060234).
 
 ## INSTALLATION & USAGE
 -----------------------
