@@ -1,18 +1,37 @@
 #!/usr/bin/python3
-#
-# This script creates the 3 pre-computed lookup tables: X, Y = f(X), and A, for both the exponential and normal PRNG.
-# Values are calculated to longdouble precision and then rounded to double precision.
-# Tables are output into a C header file.
-
-TYPE = 'EXPONENTIAL' 
-#TYPE = 'NORMAL'
-size = 256
-
+import argparse
 import numpy as np
+
+## For longdouble Error Function ####
 import pyximport; pyximport.install()
+from erfl import erf
+#####################################
+
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, 
+description="""Creates the 4 pre-computed lookup tables for both the exponential and normal PRNG: 
+    X = length of the ziggurat layers,
+    Y = f(X), 
+    map = probability table (for Alias Sampling),
+    ipmf = Alias Table.
+Values are calculated to longdouble precision and then rounded to double/single precision. Tables output to a C header file.""")
+
+parser.add_argument('--type', default='exponential', choices={'exponential', 'normal'},help="PRNG type.")
+parser.add_argument('--size', default=256, type=int, help="Number of Ziggurat layers.")
+parser.add_argument('--precision', default='double', choices={'float', 'double'}, help='Precision of tables') 
+args = parser.parse_args()
+
+if args.precision == 'double':
+    max_int = 0x7fffffffffffffff 
+    max_uint = 0xffffffffffffffff 
+    to_int = np.int64
+    c_int_type = 'int64_t'
+elif args.precision == 'float':
+    max_int = 0x7fffffff
+    max_uint = 0xffffffff
+    to_int = np.int32
+    c_int_type = 'int32_t'
 
 # redefine Transcendental functions for proper precision
-from erfl import erf
 exp = lambda x: np.exp(x, dtype=np.longdouble)
 sqrt = lambda x: np.sqrt(x, dtype=np.longdouble)
 power = lambda x, y: np.power(x, y, dtype=np.longdouble)
@@ -105,24 +124,24 @@ def realign(pmf):
     check_equal(new_pmf, pmf)
     return X[:-1], A
 
-if TYPE == 'EXPONENTIAL':
-    volume = 1/np.longdouble(size)
+if args.type == 'exponential':
+    volume = 1/np.longdouble(args.size)
     f = lambda x: exp(-x)
     CDF = lambda x: 1 - f(x)
-elif TYPE == 'NORMAL':
+elif args.type == 'normal':
     f = lambda x: exp(-oneHalf*x*x)                
     pi = np.longdouble(0)
     pi_str = '31415926535897932384626433832795'
     for i, digit in enumerate(pi_str): 
         pi += np.longdouble(digit)*power(10, -i)
 
-    volume = sqrt(2*pi)/np.longdouble(2*size)
+    volume = sqrt(2*pi)/np.longdouble(2*args.size)
     alpha = sqrt(oneHalf*pi)
     CDF = np.vectorize( lambda x: alpha*erf(sqrt(oneHalf)*x) )
 
 def generate_X_i(vol=volume, last_Y_i=0):
     lower_bound = 1
-    upper_bound = 10 if TYPE == 'EXPONENTIAL' else 4
+    upper_bound = 10 if args.type == 'exponential' else 4
     while lower_bound > vol:        # Obtaining another layer is clearly hopeless after this point
     # There are two solutions for X_i (a tall-skinny box and a long-flat box). We want the latter, 
     # so lower_bound is reduced gradually to avoid solving for the tall-skinny box. 
@@ -148,26 +167,22 @@ V[1:] -= Y[:-1]*dX
 V_tail = V[0]/V.sum()
 print("Fraction of remainder in tail: {:.4%}".format(V_tail))
 
-V = np.r_[V, np.zeros(size - len(V))]
+V = np.r_[V, np.zeros(args.size - len(V))]
 
 layers = len(X) - 1
-check_equal(size - layers, V.sum()/volume) 
-
+check_equal(args.size - layers, V.sum()/volume) 
 
 print("Mean V: {:g}".format((np.arange(len(V))*V).sum()/V.sum())) 
 V /= V.mean()
 
 pmf, Map = realign(V)
 
-max_int64 = 0x7fffffffffffffff 
-max_uint64 = 0xffffffffffffffff
+print("static {:} X_0 = {:};".format(args.precision, X[0]))
 
-print("static double X_0 = {:};".format(X[0]))
+ipmf = to_int(pmf*max_uint - max_int)    # WDS sampler uses first 8 bits of random uint to sample an 8-bit integer
+ipmf[pmf >= 1] = max_int 
 
-ipmf = np.int64(pmf*max_uint64 - max_int64)    # WDS sampler uses first 8 bits of 64-bit random uint to sample an 8-bit integer
-ipmf[pmf >= 1] = max_int64 
-
-crap ="""
+__relevant_equalities__ = """
 dY_i = Y_i+1 - Y_i
 dX_i = X_i - X_i+1
 -m_i = Y_i - Y_i+1 / X_i - X_i+1
@@ -180,24 +195,22 @@ de_max = (+m_i-1*(+log(m_i-1) + X_i) + F_i - e^log(m_i-1) / dY
 de_max = { m_i-1 * (log[m_i-1] + X_i) + F_i - m_i-1 } /dY
 """
 m = dY/dX
-if TYPE == 'EXPONENTIAL':
+if args.type == 'exponential':
     assert (m > Y[:-1]).all(), 'tangent line must be steeper than initial derivative'
     assert (m < Y[1: ]).all(), 'tangent line must be shallower than final derivative'
     epsilon = (Y[1:]-m*(1-X[1:]-np.log(m)))
-    
-    #epsilon = m*(log(m) + X[1:]) + Y[1:] - m
     E = epsilon/dY
-    print('static int64_t iE_max = {:};'.format(np.int64(E[3:].max()*max_int64)))
-    X /= max_int64 
-    Y /= max_int64
-elif TYPE == 'NORMAL':
+    print('static {:} iE_max = {:};'.format(c_int_type, to_int(E[3:].max()*max_int)))
+    X /= max_int 
+    Y /= max_int
+elif args.type == 'normal':
     print('__NORM_TAIL_BEGIN__', X[0])
     inflection_point = 1
     i_inflection = (X > inflection_point).sum()
     assert X[i_inflection + 1] < inflection_point, "Inflection point lies exactly on boundary between two layers" 
     print('static uint_fast8_t i_inflection = ', i_inflection+1)
 
-    E = zeros_like(X)
+    E = np.zeros_like(X)
   
     for i in range(1, len(X)):
         delta_i = lambda x: x*f(x) - m[i-1]
@@ -206,32 +219,29 @@ elif TYPE == 'NORMAL':
         Y_i = lambda x: Y[i] - m[i-1]*(x - X[i])
         E[i] = np.abs( Y_i(X_max) - f(X_max) ) / dY[i-1] 
 
-    iE = np.int64(ceil(E*max_int64))
-    print('static int64_t iE_max = {:}, iE_min = {:};'.format(iE[i_inflection:].max(), iE[:i_inflection].max()))
+    iE = to_int(np.ceil(E*max_int))
+    print('static {:} iE_max = {:}, iE_min = {:};'.format(c_int_type, iE[i_inflection:].max(), iE[:i_inflection].max()))
 
-    X /= max_int64 
-    Y /= max_int64
+    X /= max_int 
+    Y /= max_int
 
 ######### OUTPUT
-output = open(TYPE.lower() + "_layers.h", 'w')
-short_type = 'exp' if TYPE == 'EXPONENTIAL' else 'norm' 
-SHORT_TYPE = short_type.upper()
+output = open(args.type+"_layers.h", 'w')
+short_type = 'exp' if args.type == 'exponential' else 'norm' 
 
-output.write("""
-#define  __{SHORT_TYPE}_LAYERS__  {layers}
-""".format(**locals()))
+output.write("\n#define  __{:}_LAYERS__  {:}\n".format(short_type.upper(), layers))
 
-def writeArray(name, data, dtype, prefix=short_type):
-    length_str = str(len(data))
-    data_str = ', '.join(map(str,data))
-    output.write('static {dtype} __{prefix}_{name}__[{length_str}] = {{ {data_str} }};\n\n'.format(**locals()))
-
-Arrays = dict(X=X, Y=Y, map=np.int64(Map), ipmf=ipmf)
-if TYPE == 'NORMAL':
+Arrays = dict(X=X, Y=Y, map=to_int(Map), ipmf=ipmf)
+if args.type == 'normal':
     Arrays['iE'] = iE
 
 for name, data in Arrays.items():
-    dtype = 'double' if data.dtype == np.float128 else (str(data.dtype) + '_t')
-    writeArray(name, data, dtype)
+    output.write('static {dtype} __{short_type}_{name}__[{length}] = {{ {data} }};\n'.format(
+        dtype=args.precision if data.dtype == np.float128 else (str(data.dtype) + '_t'),
+        short_type=short_type,
+        name=name,
+        length=len(data),
+        data=', '.join(map(str,data))))
+    
 
 output.close()
