@@ -514,9 +514,9 @@ static void mt_init(void) {
     old = 1;
         /* Use Process ID, Parent Process ID, and current time to seed the PRNG */
 #ifdef _WIN32
-    uint32_t init_key[] = {(int)getpid(), (int)time(NULL)}, key_length = 2;
+    int init_key[] = {(int)getpid(), (int)time(NULL)}, key_length = 2;
 #else
-    uint32_t init_key[] = {(int)getpid(), (int)time(NULL), (int)getppid()}, key_length = 3;
+    int init_key[] = {(int)getpid(), (int)time(NULL), (int)getppid()}, key_length = 3;
 #endif
         /* See http://www.math.sci.hiroshima-u.ac.jp/~%20m-mat/MT/SFMT/index.html 
          * for the remainder. */
