@@ -43,16 +43,14 @@ contact me at christopherdmcfarland [at] gmail [dot] com
 
 WEBSITE
 -------
-Documentation and source code can be found at 
-[https://github.com/cd-mcfarland/fast_prng]
+Documentation and source code can be found at https://github.com/cd-mcfarland/fast_prng
 
 ## FILE MANIFEST
 ----------------
     
 ### MT19937.h  
 
-Modified code of Super-Fast Mersene Twister used for uniform PRNG
-[http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/]. Some code that 
+Modified code of [Super-Fast Mersene Twister used for uniform PRNG](http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/). Some code that 
 supported older architectures was removed. Functions for seeding the PRNG and 
 accessing PRNs without unnecessary bounds-checking were added.
     
