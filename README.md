@@ -36,7 +36,7 @@ behave identically to the native MATLAB functions that share the same name.
 Ensure that the mex compiler is configured and accessibles in the system PATH, 
 or specify the PATH in the install_matlab_functions.sh script. 
 
-##CONTACT
+## CONTACT
 ---------
 Feedback is most appreciated. If you have any questions or suggestions, please 
 contact me at christopherdmcfarland [at] gmail [dot] com
