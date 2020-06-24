@@ -44,7 +44,7 @@ contact me at christopherdmcfarland [at] gmail [dot] com
 WEBSITE
 -------
 Documentation and source code can be found at 
-[https://bitbucket.org/cdmcfarland/fast_prng]
+[https://github.com/cd-mcfarland/fast_prng]
 
 ## FILE MANIFEST
 ----------------
