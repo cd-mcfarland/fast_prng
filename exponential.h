@@ -33,7 +33,7 @@ static inline double _exp_overhang(uint_fast8_t j) {    /* Draws a PRN from over
         U_distance = -U_distance;               /* U_y <- 1 - (U_x + distance)      */
         U_x -= U_distance;
     }
-    static int64_t iE_max = 853965788476313646;                                     
+    static int64_t iE_max = 513303011048449572;
     double x = _FAST_PRNG_SAMPLE_X(X_j, U_x);   
     if (U_distance >= iE_max) return x;     /* Early Exit: x < y - epsilon */ 
     return _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_x + U_distance)) <= exp(-x) ? x : _exp_overhang(j); 

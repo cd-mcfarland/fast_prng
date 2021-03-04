@@ -15,7 +15,7 @@ description="""Creates the 4 pre-computed lookup tables for both the exponential
     ipmf = Alias Table.
 Values are calculated to longdouble precision and then rounded to double/single precision. Tables output to a C header file.""")
 
-parser.add_argument('--type', default='exponential', choices={'exponential', 'normal'},help="PRNG type.")
+parser.add_argument('--type', default='exponential', choices={'exponential', 'normal'}, help="PRNG type.")
 parser.add_argument('--size', default=256, type=int, help="Number of Ziggurat layers.")
 parser.add_argument('--precision', default='double', choices={'float', 'double'}, help='Precision of tables') 
 args = parser.parse_args()
@@ -36,7 +36,6 @@ exp = lambda x: np.exp(x, dtype=np.longdouble)
 sqrt = lambda x: np.sqrt(x, dtype=np.longdouble)
 power = lambda x, y: np.power(x, y, dtype=np.longdouble)
 
-oneHalf = 1/np.longdouble(2)
 
 def check_equal(x,y): 
     """check_equal(x, y) -> raise Assertion Error if values in x & y differ by more than double precision"""
@@ -124,19 +123,19 @@ def realign(pmf):
     check_equal(new_pmf, pmf)
     return X[:-1], A
 
+
 if args.type == 'exponential':
     volume = 1/np.longdouble(args.size)
     f = lambda x: exp(-x)
     CDF = lambda x: 1 - f(x)
-elif args.type == 'normal':
-    f = lambda x: exp(-oneHalf*x*x)                
-    pi = np.longdouble(0)
-    pi_str = '31415926535897932384626433832795'
-    for i, digit in enumerate(pi_str): 
-        pi += np.longdouble(digit)*power(10, -i)
 
-    volume = sqrt(2*pi)/np.longdouble(2*args.size)
+elif args.type == 'normal':
+    oneHalf = 1/np.longdouble(2)
+    pi = sum([np.longdouble(pi_digit)*power(10, -i) for i, pi_digit in enumerate('314159265358979323846')])
     alpha = sqrt(oneHalf*pi)
+    
+    volume = sqrt(2*pi)/np.longdouble(2*args.size)
+    f = lambda x: exp(-oneHalf*x*x)                
     CDF = np.vectorize( lambda x: alpha*erf(sqrt(oneHalf)*x) )
 
 def generate_X_i(vol=volume, last_Y_i=0):
@@ -200,7 +199,7 @@ if args.type == 'exponential':
     assert (m < Y[1: ]).all(), 'tangent line must be shallower than final derivative'
     epsilon = (Y[1:]-m*(1-X[1:]-np.log(m)))
     E = epsilon/dY
-    print('static {:} iE_max = {:};'.format(c_int_type, to_int(E[3:].max()*max_int)))
+    print('static {:} iE_max = {:};'.format(c_int_type, to_int(E[1:].max()*max_int)))
     X /= max_int 
     Y /= max_int
 elif args.type == 'normal':
