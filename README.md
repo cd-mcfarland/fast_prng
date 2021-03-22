@@ -18,7 +18,7 @@ compilation command:
 
 ### Fortran 
 
-Scott Boyce has generously translated this algorithm into [GNU Fortran, which you can download here.](https://code.usgs.gov/fortran/bif). 
+Scott Boyce has generously translated this algorithm into GNU Fortran: https://code.usgs.gov/fortran/bif  
 
 ### Python:
 
