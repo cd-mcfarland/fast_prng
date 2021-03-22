@@ -7,7 +7,7 @@ exponentially and normally distributed pseudorandom numbers](http://www.tandfonl
 
 ## INSTALLATION & USAGE
 -----------------------
-### C/C++:
+### C/C++
 
 Source code and functions are found in exponential.h and normal.h. Simply 
 include this directory in the path of your compiler. For an example of usage, 
@@ -20,7 +20,7 @@ compilation command:
 
 Scott Boyce has generously translated this algorithm into GNU Fortran: https://code.usgs.gov/fortran/bif  
 
-### Python:
+### Python
 
 Install via the [Python Package Index](https://pypi.python.org/pypi):
             
@@ -28,7 +28,7 @@ Install via the [Python Package Index](https://pypi.python.org/pypi):
 
 The module's functions mimic numpy.random functions of the same name. 
 
-### Matlab:
+### Matlab
 
 Install via the command:
             
