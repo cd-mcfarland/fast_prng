@@ -16,6 +16,10 @@ compilation command:
 
     $ gcc -O2 -DEXPONENTIAL profile.c -lm -o exponential_profiler.out
 
+### Fortran 
+
+Scott Boyce has generously translated this algorithm into [GNU Fortran, which you can download here.](https://code.usgs.gov/fortran/bif). 
+
 ### Python:
 
 Install via the [Python Package Index](https://pypi.python.org/pypi):
