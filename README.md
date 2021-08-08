@@ -5,6 +5,8 @@
 This code is the implementation of [A modified ziggurat algorithm for generating 
 exponentially and normally distributed pseudorandom numbers](http://www.tandfonline.com/doi/abs/10.1080/00949655.2015.1060234).
 
+[Alex Herbert](https://github.com/aherbert) has detected and fixed a bug in the fast rejection sampling of the normal PRNG. This bug was not measurable by the first six moments of the generated distribution (precise to one part in one million), and has since been fixed. Thank you Alex!
+
 ## INSTALLATION & USAGE
 -----------------------
 ### C/C++
@@ -104,7 +106,7 @@ Extensions for Matlab/Octave.
 
 ### histogram/
 
-Coursey of [Alex Herbert](https://github.com/aherbert), we can now generate histogram of PRNGs. For example:
+Generates histogram of PRNGs. For example:
     
     $ gcc -DNORMAL -O3 histogram.c -lm -o normal.out
     $ ./normal.out
