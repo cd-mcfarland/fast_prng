@@ -104,7 +104,7 @@ Extensions for Matlab/Octave.
 
 ### histogram/
 
-Creates histogram of PRNGs. For example:
+Coursey of [Alex Herbert](https://github.com/aherbert), we can now generate histogram of PRNGs. For example:
     
     $ gcc -DNORMAL -O3 histogram.c -lm -o normal.out
     $ ./normal.out
