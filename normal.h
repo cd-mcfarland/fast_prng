@@ -56,9 +56,9 @@ static inline double normal(void) {
             x = _FAST_PRNG_SAMPLE_X(X_j, U_1);
             MT_FLUSH();
             U_diff = RANDOM_INT63() - U_1;
-            if (U_diff > min_iE) break;      
-            if (U_diff < -max_iE) continue;
-            if ( _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_1 + U_diff)) < exp(-0.5*x*x) ) break;
+            if (U_diff >= 0) break;      
+            if (U_diff >= -max_iE &&
+                _FAST_PRNG_SAMPLE_Y(j, pow(2, 63) - (U_1 + U_diff)) < exp(-0.5*x*x) ) break;
             U_1 = RANDOM_INT63();
             }
     } else if (j == 0) {                /* Tail */
