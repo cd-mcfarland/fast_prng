@@ -101,3 +101,13 @@ Competing algorithms are also provided.
 ### matlab/  
     
 Extensions for Matlab/Octave.
+
+### histogram/
+
+Creates histogram of PRNGs. For example:
+    
+    $ gcc -DNORMAL -O3 histogram.c -lm -o normal.out
+    $ ./normal.out
+    $ ./plot_histogram.py
+Creates the following graph:
+![N=1,000,000,000](histogram/histogram.png)
