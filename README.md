@@ -39,8 +39,8 @@ Install via the command:
 This script will install to the default MATLAB userpath, unless $USERPATH is 
 redefined. The installed functions: fast_exprnd, fast_randn, and fast_rand
 behave identically to the native MATLAB functions that share the same name. 
-Ensure that the mex compiler is configured and accessibles in the system PATH, 
-or specify the PATH in the install_matlab_functions.sh script. 
+Ensure that the mex compiler is configured and accessibles in the system PATH 
+(or specify $PATH within install_matlab_functions.sh). 
 
 ## CONTACT
 ---------
