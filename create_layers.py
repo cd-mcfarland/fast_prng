@@ -200,6 +200,8 @@ if args.type == 'exponential':
     epsilon = (Y[1:]-m*(1-X[1:]-np.log(m)))
     E = epsilon/dY
     print('static {:} iE_max = {:};'.format(c_int_type, to_int(E[1:].max()*max_int)))
+    print('''Please note that iE_max is smaller than the published threshold for fast acceptance. 
+This is an improvement made post-publication-the 0th overhang is never sampled by the exp_overhang function.''')
     X /= max_int 
     Y /= max_int
 elif args.type == 'normal':
