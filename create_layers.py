@@ -208,8 +208,8 @@ elif args.type == 'normal':
     print('__NORM_TAIL_BEGIN__', X[0])
     inflection_point = 1
     i_inflection = (X > inflection_point).sum()
-    assert X[i_inflection + 1] < inflection_point, "Inflection point lies exactly on boundary between two layers" 
-    print('static uint_fast8_t i_inflection = ', i_inflection+1)
+    assert X[i_inflection] < inflection_point, "Inflection point lies exactly on boundary between two layers" 
+    print('static uint_fast8_t i_inflection = ', i_inflection)
 
     E = np.zeros_like(X)
   
