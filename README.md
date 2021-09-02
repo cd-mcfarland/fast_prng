@@ -5,7 +5,7 @@
 This code is the implementation of [A modified ziggurat algorithm for generating 
 exponentially and normally distributed pseudorandom numbers](http://www.tandfonline.com/doi/abs/10.1080/00949655.2015.1060234).
 
-[Alex Herbert](https://github.com/aherbert) has detected and fixed two bugs: one the fast rejection sampling of the normal PRNG, and another where the indexing of both the exponential and normal overhang derivatives were off by 1. Please note that neither bug was detectable in first six moments of the generated distributions (precise to one part in one million). Thank you Alex!
+[Alex Herbert](https://github.com/aherbert) has detected and fixed two bugs: one in the fast rejection sampling of the normal PRNG, and another where the indexing of both the exponential and normal overhang derivatives were off by 1. Please note that neither bug was detectable in first six moments of the generated distributions (precise to one part in one million). Thank you Alex!
 
 ## INSTALLATION & USAGE
 -----------------------
