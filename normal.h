@@ -41,7 +41,7 @@ static inline double normal(void) {
     int64_t U_diff;
     static int64_t max_iE = 2269182951627975918, min_iE =  760463704284035181; /* Largest deviations of f(x) from y_i */
 	static double X_0 = 3.6360066255;                   /* Beginning of tail */
-    static uint_fast8_t j_inflection = 205;
+    static uint_fast8_t j_inflection = 204;
     double x, *X_j = X + j;
         /* Four kinds of overhangs: 
          *  j = 0                :  Sample from tail
