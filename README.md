@@ -18,6 +18,10 @@ compilation command:
 
     $ gcc -O2 -DEXPONENTIAL profile.c -lm -o exponential_profiler.out
 
+### Java
+
+This code has been ported to the Commons RNG project ([documentation here](https://commons.apache.org/proper/commons-rng/commons-rng-sampling/apidocs/org/apache/commons/rng/sampling/distribution/ZigguratSampler.html)), courtesy of Alex Herbert. 
+
 ### Fortran 
 
 Scott Boyce has generously translated this algorithm into GNU Fortran: https://code.usgs.gov/fortran/bif  
